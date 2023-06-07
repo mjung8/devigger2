@@ -1,0 +1,169 @@
+<html>
+
+<head>
+    <title>Ice Cream Picker</title>
+    <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script defer src="assets/js/main.js"></script>
+</head>
+
+<body>
+
+    <py-config>
+        packages = ["numpy", "scipy"]
+    </py-config>
+
+    <py-script>
+        import js
+        import numpy as np
+
+        from pyodide.ffi import create_proxy
+        from scipy.optimize import bisect
+
+        def _get_shin_implied_probabilities(z, pi):
+            normalization = sum(pi)
+            return ((z ** 2 + 4 * (1 - z) * pi ** 2 / normalization) ** 0.5 - z) / (2 - 2 * z)
+
+
+        def _get_shin_normalization(z, pi):
+            implied_probabilities = _get_shin_implied_probabilities(z, pi)
+            return 1 - sum(implied_probabilities)
+
+
+        def _get_power_normalization(k, pi):
+            implied_probabilities = pi ** k
+            return 1 - sum(implied_probabilities)
+
+
+        def calculate_multiplicative_probability(*args):
+            odds = np.array(args)
+            pi = 1 / odds
+
+            normalization = sum(pi)
+            implied_probabilities = pi / normalization
+
+            return implied_probabilities
+
+
+        def calculate_additive_probability(*args):
+            odds = np.array(args)
+            pi = 1 / odds
+
+            implied_probabilities = pi + 1 / len(odds) * (1 - sum(pi))
+
+            return implied_probabilities
+
+
+        def calculate_power_probability(*args):
+            odds = np.array(args)
+            pi = 1 / odds
+
+            k_opt = bisect(_get_power_normalization, 0, 100, args=(pi))
+            implied_probabilities = pi ** k_opt
+
+            return implied_probabilities
+
+
+        def calculate_shin_probability(*args):
+            odds = np.array(args)
+            pi = 1 / odds
+
+            z_opt = bisect(_get_shin_normalization, 0, 10, args=(pi))
+            implied_probabilities = _get_shin_implied_probabilities(z_opt, pi)
+
+            return implied_probabilities
+
+        
+        def hello_world():
+            print('Hello, World from pyscript!')    
+
+    </py-script>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <label for="bankroll">Bankroll:
+                    <input type="number" id="bankroll" name="bankroll">
+                </label>
+            </div>
+        </div>
+    
+        <br />
+    
+        <div class="row">
+            <div class="col">
+                <div>
+                    <textarea id="gridBuilderTextArea" rows="5" cols="50"></textarea>
+                </div>
+            </div>
+        </div>
+    
+        <br />
+        <div>
+            <button id="helloWorldButton">Hello World</button>
+        </div>
+        <br />
+        <div>
+            <button id="buildTableButton">Build Table</button>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container m-2" id="testGrid">
+        <div class="row">
+            <div class="col-1" contenteditable="true">Book</div>
+            <div class="col-8" contenteditable="true">Boost Description</div>
+        </div>
+        <div class="row">
+          <div class="col-1">Odds</div>
+          <div class="col-1" contenteditable="true">Leg1A</div>
+          <div class="col-1" contenteditable="true">Leg1B</div>
+          <div class="col-1" contenteditable="true">Leg2A</div>
+          <div class="col-1" contenteditable="true">Leg2B</div>
+          <div class="col-1" contenteditable="true">Leg3A</div>
+          <div class="col-1" contenteditable="true">Leg3B</div>
+          <div class="col-1">Final</div>
+          <div class="col-1" contenteditable="true">Boosted</div>
+        </div>
+        <div class="row">
+            <div class="col-1">Multi</div>
+            <div class="col-1">Leg1ADev</div>
+            <div class="col-1">Leg1BDev</div>
+            <div class="col-1">Leg2ADev</div>
+            <div class="col-1">Leg2BDev</div>
+            <div class="col-1">Leg3ADev</div>
+            <div class="col-1">Leg3BDev</div>
+            <div class="col-2">FinalDev</div>
+          </div>
+        <div class="row">
+          <div class="col-1"></div>
+          <div class="col-8">Juice = 2.1%, 2.0%, 2.0%; Total = 6.10%;</div>
+        </div>
+        <div class="row">
+          <div class="col-1"></div>
+          <div class="col-8">EV% 16.0%; Kelly Wager = $4.78 (Full=1.91u, 1/2=0.96u, 1/4=0.48u)</div>
+        </div>
+      </div>
+
+    <!-- Click this button to log 'Apple', 'Banana', 'Candy', 'Donut' by sorting in Python-->
+     <!-- <button onclick="sortInPython(['Candy', 'Donut', 'Apple', 'Banana'])">Sort In Python And Log</button>
+     <script>
+         function sortInPython(data){
+             js_sorted = pyscript.interpreter.globals.get('sorted') //grab python's 'sorted' function
+             const sorted_data = js_sorted(data) //apply the function to the 'data' argument
+             for (const item of sorted_data){
+                 console.log(item)
+             }
+             hello_world = pyscript.interpreter.globals.get("hello_world"); 
+             hello_world();
+         }
+     </script> -->
+
+</body>
+
+</html>
