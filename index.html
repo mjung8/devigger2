@@ -113,42 +113,62 @@
     </div>
 
     <br />
+    
+    <div class="eventContainer" id="20230607-1">
+        <div>
+            <div class="userInputs fst-italic" contenteditable="true">Book</div>
+            <div class="userInputs fst-italic" contenteditable="true">Boost Description...</div>
+        </div>
+        <div>
+            <div class="fw-bold mx-2">Odds</div>
+            <div class="legGrouping">
+                <div class="userInputs" contenteditable="true">Leg1A</div>
+                <div class="userInputs" contenteditable="true">Leg1B</div>
+            </div>
+            <div class="legGrouping">
+                <div class="userInputs" contenteditable="true">Leg2A</div>
+                <div class="userInputs" contenteditable="true">Leg2B</div>
+            </div>
+            <div class="legGrouping">
+                <div class="userInputs" contenteditable="true">Leg3A</div>
+                <div class="userInputs" contenteditable="true">Leg3B</div>
+            </div>
+            <div class="legGrouping">
+                <div class="fw-bold">Final</div>
+                <div class="userInputs" contenteditable="true">Boosted</div>
+            </div>
+        </div>
+        <p>
+            Multiplicative:<br />
+            Leg#1 (159); Market Juice = 2.1 %; Fair Value = +164 (37.8 %)<br />
+            Leg#2 (-138); Market Juice = 2.0 %; Fair Value = -132 (56.8 %)<br />
+            Leg#3 (-143); Market Juice = 2.0 %; Fair Value = -137 (57.7 %)<br />
+            Final Odds (+835); Σ(Market Juice) = 6.10 %; Fair Value = +706 (12.4 %)<br />
+            Summary; EV% = 16.0 %, Kelly Wager = $4.78 (Full=1.91u, 1/2=0.96u, 1/4=0.48u, FB = 103.6 %)
+        </p>
+    </div>
 
-    <div class="container m-2" id="testGrid">
-        <div class="row">
-            <div class="col-1" contenteditable="true">Book</div>
-            <div class="col-8" contenteditable="true">Boost Description</div>
+    <!--
+        for UX might be better to have inputs all gruped up at the top and then print all results as text
+        this maybe can be simpler just rows of text
+        <div>
+            <div class="fw-bold">Multi</div>
+            <div class="devigCalculations">LegDV</div>
+            <div class="devigCalculations">Leg%</div>
+            <div class="devigCalculations">LegDV</div>
+            <div class="devigCalculations">Leg%</div>
+            <div class="devigCalculations">Leg</div>
+            <div class="devigCalculations">Leg%</div>
+            <div class="devigCalculations">FinalDev</div>
         </div>
-        <div class="row">
-          <div class="col-1">Odds</div>
-          <div class="col-1" contenteditable="true">Leg1A</div>
-          <div class="col-1" contenteditable="true">Leg1B</div>
-          <div class="col-1" contenteditable="true">Leg2A</div>
-          <div class="col-1" contenteditable="true">Leg2B</div>
-          <div class="col-1" contenteditable="true">Leg3A</div>
-          <div class="col-1" contenteditable="true">Leg3B</div>
-          <div class="col-1">Final</div>
-          <div class="col-1" contenteditable="true">Boosted</div>
+        <div>
+            <div>Juice = 2.1%, 2.0%, 2.0%; Total = 6.10%;</div>
         </div>
-        <div class="row">
-            <div class="col-1">Multi</div>
-            <div class="col-1">Leg1ADev</div>
-            <div class="col-1">Leg1BDev</div>
-            <div class="col-1">Leg2ADev</div>
-            <div class="col-1">Leg2BDev</div>
-            <div class="col-1">Leg3ADev</div>
-            <div class="col-1">Leg3BDev</div>
-            <div class="col-2">FinalDev</div>
-          </div>
-        <div class="row">
-          <div class="col-1"></div>
-          <div class="col-8">Juice = 2.1%, 2.0%, 2.0%; Total = 6.10%;</div>
+        <div>
+            <div>EV% 16.0%; Kelly Wager = $4.78 (Full=1.91u, 1/2=0.96u, 1/4=0.48u)</div>
         </div>
-        <div class="row">
-          <div class="col-1"></div>
-          <div class="col-8">EV% 16.0%; Kelly Wager = $4.78 (Full=1.91u, 1/2=0.96u, 1/4=0.48u)</div>
-        </div>
-      </div>
+        
+    -->
 
     <!-- Click this button to log 'Apple', 'Banana', 'Candy', 'Donut' by sorting in Python-->
      <!-- <button onclick="sortInPython(['Candy', 'Donut', 'Apple', 'Banana'])">Sort In Python And Log</button>

@@ -1,3 +1,19 @@
-#testGrid > div > div {
-    border: 1px solid black;
+.eventContainer {
+  padding-left: 1%;
 }
+.eventContainer div div {
+  display: inline-block;
+  padding: 2px 5px;
+}
+.eventContainer div div div,
+.eventContainer div div div div {
+  display: inline-block;
+}
+
+.userInputs {
+  border: 1px solid black;
+  border-radius: 5px;
+  margin: 2px;
+  min-width: 69px;
+  padding: 2px 5px;
+}/*# sourceMappingURL=styles.css.map */
