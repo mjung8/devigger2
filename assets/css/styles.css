@@ -1,9 +1,10 @@
 .eventContainer {
   padding-left: 1%;
+  margin-bottom: 1%;
 }
 .eventContainer div div {
   display: inline-block;
-  padding: 2px 5px;
+  padding: 1px 4px;
 }
 .eventContainer div div div,
 .eventContainer div div div div {
@@ -14,6 +15,10 @@
   border: 1px solid black;
   border-radius: 5px;
   margin: 2px;
-  min-width: 69px;
+  min-width: 49px;
   padding: 2px 5px;
+}
+
+.legGrouping {
+  border: 1px solid gray;
 }/*# sourceMappingURL=styles.css.map */
