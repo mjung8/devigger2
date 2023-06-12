@@ -1,3 +1,14 @@
+class Boost {
+    constructor(id, book, description, legs, odds, boosted) {
+        this.id = id;
+        this.book = book;
+        this.description = description;
+        this.legs = legs;
+        this.odds = odds;
+        this.boosted = boosted;
+    }
+};
+
 const helloWorldButton = document.getElementById('helloWorldButton');
 helloWorldButton.addEventListener("click", () => {
     console.log("helloworldclicked");
@@ -28,29 +39,8 @@ const allContainerDiv = document.getElementById("allContainer");
 buildTableButton.addEventListener("click", () => {
     if (gridBuilderTextArea.value.trim()) {
         const lines = gridBuilderTextArea.value.split('\n');
+        console.log("buildTableButton clicked...");
         console.log(lines);
-
-        //for each line, split by commas - this shows how many legs
-        // the value of each split is how many sides there are to each event. 
-        // e. g. 2, 2, 2 for a 3 legs made of 2 sides each (simple 2-way moneylines)
-
-        // build the grid
-        // count commas for legs...number is sides
-        // 4 is just a 4-way devig
-        // 2, 2, 2, is a 3-leg 2-way devig
-        // 3, 3, 3, 3 is a 4-leg 3-way devig
-        // 2, 3 is a 2-leg combo devig (football/soccer cfl/mls)
-
-        // first need a datastructure to keep track of this stuff
-        // for each line, create an object:
-        // id, book, boostDescription, 
-        // inputsArray[e.g. 4; 2, 2, 2; 2, 3, 2]
-        // number of eventContainers = lines.Count;
-        // number of legGroupings = inputsArray.Count
-        // number of userInputs in each legGrouping is mapped by inputsArray
-        // for each i in inputsArray[]
-        // var splits = inputsArray[i]
-        // for each splits, create a leg grouping, and the value of the array for number of user inputs
 
         // date needed for id;
         const dateString = GetDate();
@@ -58,12 +48,25 @@ buildTableButton.addEventListener("click", () => {
 
         // TODO create list of objects; create object
 
+        const boosts = [];
         for (let i = 0; i < numEventContainers; i++) {
             if (lines[i].trim()) {
-                
-                
+
                 const id = dateString + (i + 1).toString();
-                console.log(id);
+
+                // TODO build an object here
+                // id, book, boostDescrption
+                // legsArray (below's splits), oddsArray should be parallel
+                // then generate html based off the object
+                const boost = new Boost(id, "", "", lines[i].split(","), [], 0);
+                console.log(boost.id);
+                console.log(boost.book);
+                console.log(boost.description);
+                console.log(boost.legs);
+                console.log(boost.odds);
+                console.log(boost.boosted);
+
+                boosts.push(boost);
 
                 const mainDiv = document.createElement("div");
                 mainDiv.className = "eventContainer";
@@ -74,12 +77,12 @@ buildTableButton.addEventListener("click", () => {
                 const bookDiv = document.createElement("div");
                 bookDiv.className = "userInputs fst-italic";
                 bookDiv.setAttribute("contenteditable", "true");
-                bookDiv.textContent = "Book";
+                bookDiv.setAttribute("data-text", "Book");
 
                 const boostDescDiv = document.createElement("div");
                 boostDescDiv.className = "userInputs fst-italic";
                 boostDescDiv.setAttribute("contenteditable", "true");
-                boostDescDiv.textContent = "Boost Description...";
+                boostDescDiv.setAttribute("data-text", "Boost Description...");
 
                 emptyDiv1.appendChild(bookDiv);
                 emptyDiv1.appendChild(boostDescDiv);
@@ -87,7 +90,7 @@ buildTableButton.addEventListener("click", () => {
                 mainDiv.appendChild(emptyDiv1);
 
                 const emptyDiv2 = document.createElement("div");
-                
+
                 const oddsLabelDiv = document.createElement("div");
                 oddsLabelDiv.className = "fw-bold mx-2";
                 oddsLabelDiv.textContent = "Odds"
@@ -113,7 +116,8 @@ buildTableButton.addEventListener("click", () => {
                     emptyDiv2.appendChild(legGroupingDiv);
                 }
 
-                const finalOddsLegGroupingDiv = document.createElement("div");
+                const finalGroupingDiv = document.createElement("div");
+                finalGroupingDiv.className = "finalGrouping";
 
                 const finalLabelDiv = document.createElement("div");
                 finalLabelDiv.className = "fw-bold";
@@ -123,17 +127,29 @@ buildTableButton.addEventListener("click", () => {
                 boostedUserInput.className = "userInputs";
                 boostedUserInput.setAttribute("contenteditable", "true");
 
-                finalOddsLegGroupingDiv.appendChild(finalLabelDiv);
-                finalOddsLegGroupingDiv.appendChild(boostedUserInput);
+                finalGroupingDiv.appendChild(finalLabelDiv);
+                finalGroupingDiv.appendChild(boostedUserInput);
 
-                emptyDiv2.appendChild(finalOddsLegGroupingDiv);
+                emptyDiv2.appendChild(finalGroupingDiv);
 
                 mainDiv.appendChild(emptyDiv2);
 
                 allContainerDiv.appendChild(mainDiv);
             }
         }
+
+        console.log(boosts.length);
+        console.log(boosts);
     }
 
-
 });
+
+
+
+//#region testing
+const testTextAreaButton = document.getElementById("testTextAreaButton");
+testTextAreaButton.addEventListener("click", () => {
+    gridBuilderTextArea.value = "2, 2, 2\n4\n3, 3,3, 3\n2,3";
+});
+
+//#endregion

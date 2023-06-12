@@ -27,6 +27,10 @@
     padding: 2px 5px;
 }
 
-.legGrouping {
+.legGrouping, .finalGrouping {
     border: 1px solid gray;
 }
+
+[contentEditable=true]:empty:not(:focus):before {
+    content: attr(data-text)
+  }
