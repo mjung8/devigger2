@@ -1,3 +1,4 @@
+//#region classes
 class Boost {
     constructor(id, book, description, legs, odds, boosted) {
         this.id = id;
@@ -8,7 +9,9 @@ class Boost {
         this.boosted = boosted;
     }
 };
+//#endregion
 
+//#region functions
 const GetDate = () => {
     const currentDate = new Date();
 
@@ -25,6 +28,10 @@ const GetDate = () => {
     return formattedDate;
 };
 
+const FindBoostById = (id) => {
+    return globalBoosts.find(boost => boost.id === id);
+}
+
 const CreateHtmlFromBoosts = (boosts, target) => {
     for (let i = 0; i < boosts.length; i++) {
         const boost = boosts[i];
@@ -36,7 +43,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         const emptyDiv1 = document.createElement("div");
 
         const bookDiv = document.createElement("div");
-        bookDiv.className = "userInputs fst-italic";
+        bookDiv.className = "userInput fst-italic";
         bookDiv.setAttribute("contenteditable", "true");
         if (boost.book) {
             bookDiv.textContent = boost.book;
@@ -45,7 +52,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         }
 
         const boostDescDiv = document.createElement("div");
-        boostDescDiv.className = "userInputs fst-italic";
+        boostDescDiv.className = "userInput fst-italic";
         boostDescDiv.setAttribute("contenteditable", "true");
         if (boost.book) {
             boostDescDiv.textContent = boost.description;
@@ -73,7 +80,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
             const sides = boost.legs[i];
             for (let j = 0; j < sides; j++) {
                 const userInputDiv = document.createElement("div");
-                userInputDiv.className = "userInputs";
+                userInputDiv.className = "userInput";
                 userInputDiv.setAttribute("contenteditable", "true");
                 if (boost.odds[j]) {
                     userInputDiv.textContent = boost.odds[j].toString();
@@ -93,7 +100,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         finalLabelDiv.textContent = "Final"
 
         const boostedUserInput = document.createElement("div");
-        boostedUserInput.className = "userInputs";
+        boostedUserInput.className = "userInput";
         boostedUserInput.setAttribute("contenteditable", "true");
 
         if (boost.boosted > 0) {
@@ -128,7 +135,7 @@ const CreateBoostsFromTextArea = () => {
 
                 const id = dateString + (i + 1).toString();
                 const boost = new Boost(id, "", "", lines[i].split(","), [], 0);
-                
+
                 consoleLogBoost(boost);
 
                 boosts.push(boost);
@@ -141,6 +148,53 @@ const CreateBoostsFromTextArea = () => {
     }
 };
 
+const CollectUserInputsAndUpdateObjects = () => {
+    const eventContainers = document.getElementsByClassName("eventContainer");
+    for (let i = 0; i < eventContainers.length; i++) {
+        const eventContainer = eventContainers[i];
+        let boost = FindBoostById(eventContainer.id);
+
+        if (boost) {
+            console.log("Found eventContainer id: " + boost.id);
+
+            boost.book = eventContainer.childNodes[0].childNodes[0].innerText;
+            boost.description = eventContainer.childNodes[0].childNodes[1].innerText;
+
+            // populate odds
+            const legGroupings = eventContainer.querySelectorAll(".legGrouping");
+            console.log(legGroupings)
+            let allOdds = [];
+
+            for (let j = 0; j < legGroupings.length; j++) {
+                const legGrouping = legGroupings[j];
+                const sides = legGrouping.querySelectorAll(".userInput");
+                console.log(sides);
+
+                let odds = [];
+                for (let k = 0; k < sides.length; k++) {
+                    odds.push(parseInt(sides[k].innerText));
+                    console.log(sides[k]);
+                }
+                allOdds.push(odds);
+            }
+            console.log(allOdds);
+            console.log(allOdds.length);
+
+            boost.odds = allOdds;
+
+            // populate boosted (final) odds
+            const finalOddsValue = parseInt(eventContainer.querySelector("div.finalGrouping>div.userInput").innerText);
+            console.log(finalOddsValue);
+            boost.boosted = finalOddsValue;
+        }
+        else {
+            alert("Event doesn't exist for some reason...");
+        }
+    }
+};
+//#endregion
+
+//#region app entry
 let globalBoosts = [];
 
 const buildTableButton = document.getElementById("buildTableButton");
@@ -149,9 +203,11 @@ buildTableButton.addEventListener("click", () => {
     CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
 });
 
-// TODO create odds collection button
-// collect odds for each eventContainer
-// find the boost object in globalBoosts and populate it with odds
+// collect odds and other data for each eventContainer
+const calculateButton = document.getElementById("calculateButton");
+calculateButton.addEventListener("click", () => {
+    CollectUserInputsAndUpdateObjects();
+});
 
 // TODO create function for doing calculations
 
@@ -160,20 +216,29 @@ buildTableButton.addEventListener("click", () => {
 // TODO create function for saving objects to file
 
 // TODO create function for loading objects from file
-
+//#endregion
 
 
 //#region testing
 const helloWorldButton = document.getElementById('helloWorldButton');
 helloWorldButton.addEventListener("click", () => {
-    console.log("helloworldclicked");
+    console.log("helloWorldButton clicked...");
     yello_world = pyscript.interpreter.globals.get("hello_world");
     yello_world();
 });
 
 const testTextAreaButton = document.getElementById("testTextAreaButton");
 testTextAreaButton.addEventListener("click", () => {
+    console.log("testTextAreaButton clicked...");
     document.getElementById("gridBuilderTextArea").value = "2, 2, 2\n4\n3, 3,3, 3\n2,3";
+});
+
+// TODO do tests by creating globalBoosts objects...
+const testOddsButton = document.getElementById("testOddsButton");
+testOddsButton.addEventListener("click", () => {
+    console.log("testOddsButton clicked...");
+    globalBoosts = [];
+
 });
 
 const consoleLogBoost = (boost) => {
