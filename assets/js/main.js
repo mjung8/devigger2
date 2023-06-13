@@ -194,8 +194,6 @@ const CreateBoostsFromTextArea = () => {
                 const id = dateString + (i + 1).toString();
                 const boost = new Boost(id, "", "", lines[i].split(","), [], 0);
 
-                consoleLogBoost(boost);
-
                 boosts.push(boost);
             }
         }
@@ -374,7 +372,7 @@ const EVAndKellyCalcAndDisplay = (deviggedBoost, EV) => {
     const fullKelly = (EV / (deviggedBoost.decimalBoosted - 1)) * 100;
     const halfKelly = fullKelly / 2;
     const quarterKelly = fullKelly / 4;
-    const targetKellyDollars = fullKelly / 100 * kellyInputValue * bankrollInputValue;
+    const targetKellyDollars = fullKelly / 100 * document.getElementById("kelly").value * document.getElementById("bankroll").value;
 
     let symbol = "❌";
     if (targetKellyDollars > 0) symbol = "✅";
@@ -448,8 +446,6 @@ const ShowTestStrings = () => {
 //#region app entry
 let globalBoosts = [];
 let globalDeviggedBoosts = [];
-const bankrollInputValue = document.getElementById("bankroll").value;
-const kellyInputValue = document.getElementById("kelly").value;
 
 const buildTableButton = document.getElementById("buildTableButton");
 buildTableButton.addEventListener("click", () => {
@@ -458,12 +454,16 @@ buildTableButton.addEventListener("click", () => {
     CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
 });
 
-const calculateButton = document.getElementById("calculateButton");
-calculateButton.addEventListener("click", () => {
+const AllCalculations = () => {
     CollectUserInputsAndUpdateObjects();
     CalculateDeviggedOdds();
     CalculateAndDisplayEV();
     ShowTestStrings();
+}
+
+const calculateButton = document.getElementById("calculateButton");
+calculateButton.addEventListener("click", () => {
+    AllCalculations();
 });
 
 // TODO create function for saving objects to file
