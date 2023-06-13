@@ -350,6 +350,9 @@ const CalculateAndDisplayEV = () => {
     for (let i = 0; i < globalDeviggedBoosts.length; i++) {
         const deviggedBoost = globalDeviggedBoosts[i];
 
+        const target = document.getElementById(deviggedBoost.betId);
+        let targetPs = target.querySelectorAll("p");
+        targetPs.forEach(p => p.remove());
         // for each deviggedBoost, target its id element, for each type of devig, create a <p>, change its html
         // using info from each deviggedBoost, append to target
         // methods...multiplicative multiAmerican multiFV
@@ -431,6 +434,8 @@ const ShowTestStrings = () => {
         const boost = globalDeviggedBoosts[i];
         const target = document.getElementById(boost.betId);
         const target2 = target.children[0];
+        let targetPs = target2.querySelectorAll("span");
+        targetPs.forEach(p => p.remove());
         let span = document.createElement("span");
         span.className = "text-body-tertiary";
         span.innerText = boost.testString;
