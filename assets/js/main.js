@@ -246,104 +246,115 @@ const CollectUserInputsAndUpdateObjects = () => {
 
 };
 
-// TODO create function for doing calculations
 const CalculateDeviggedOdds = () => {
     console.time("CalculateDeviggedOdds");
 
     // get all python functions
+    const v_american_to_decimal = pyscript.interpreter.globals.get("v_american_to_decimal");
+    const calculate_juice = pyscript.interpreter.globals.get("calculate_juice");
+    const calculate_multiplicative_probability = pyscript.interpreter.globals.get("calculate_multiplicative_probability");
+    const v_percent_to_american = pyscript.interpreter.globals.get("v_percent_to_american");
+    const calculate_product = pyscript.interpreter.globals.get("calculate_product");
+    const calculate_additive_probability = pyscript.interpreter.globals.get("calculate_additive_probability");
+    const calculate_power_probability = pyscript.interpreter.globals.get("calculate_power_probability");
+    const calculate_shin_probability = pyscript.interpreter.globals.get("calculate_shin_probability");
 
     // loop globalBoosts to get deviggedOdds
     globalDeviggedBoosts = [];
 
-    const temp = globalBoosts[0];
-    console.log(temp.odds);
+    for (let i = 0; i < globalBoosts.length; i++) {
+        const temp = globalBoosts[i];
+        console.log(temp.odds);
 
-    const deviggedBoost = new DeviggedBoost(temp.id, temp.odds, temp.boosted);
+        const deviggedBoost = new DeviggedBoost(temp.id, temp.odds, temp.boosted);
 
-    const v_american_to_decimal = pyscript.interpreter.globals.get("v_american_to_decimal");
-    const americanToDecimalResultsPy = v_american_to_decimal(temp.odds);
-    console.log(americanToDecimalResultsPy.toJs());
-    deviggedBoost.decimalOdds = americanToDecimalResultsPy.toJs();
-    americanToDecimalResultsPy.destroy();
+        const americanToDecimalResultsPy = v_american_to_decimal(temp.odds);
+        console.log(americanToDecimalResultsPy.toJs());
+        deviggedBoost.decimalOdds = americanToDecimalResultsPy.toJs();
+        americanToDecimalResultsPy.destroy();
 
-    const calculate_juice = pyscript.interpreter.globals.get("calculate_juice");
-    const juiceResultPy = calculate_juice(deviggedBoost.decimalOdds);
-    deviggedBoost.juice = juiceResultPy.toJs();
-    juiceResultPy.destroy();
+        const juiceResultPy = calculate_juice(deviggedBoost.decimalOdds);
+        deviggedBoost.juice = juiceResultPy.toJs();
+        juiceResultPy.destroy();
 
-    const boostedConverstionResultPy = v_american_to_decimal([[deviggedBoost.originalBoosted]]);
-    const boostedConverstionResultJs = boostedConverstionResultPy.toJs();
-    deviggedBoost.decimalBoosted = boostedConverstionResultJs;
-    boostedConverstionResultPy.destroy();
+        const boostedConverstionResultPy = v_american_to_decimal([[deviggedBoost.originalBoosted]]);
+        const boostedConverstionResultJs = boostedConverstionResultPy.toJs();
+        deviggedBoost.decimalBoosted = boostedConverstionResultJs;
+        boostedConverstionResultPy.destroy();
 
-    // multiplicative
-    const calculate_multiplicative_probability = pyscript.interpreter.globals.get("calculate_multiplicative_probability");
-    const multiplicativeResultPy = calculate_multiplicative_probability(deviggedBoost.decimalOdds);
-    deviggedBoost.multiplicative = multiplicativeResultPy.toJs();
-    multiplicativeResultPy.destroy();
+        // multiplicative
+        const multiplicativeResultPy = calculate_multiplicative_probability(deviggedBoost.decimalOdds);
+        deviggedBoost.multiplicative = multiplicativeResultPy.toJs();
+        multiplicativeResultPy.destroy();
 
-    const v_percent_to_american = pyscript.interpreter.globals.get("v_percent_to_american");
-    const multToAmericanPy = v_percent_to_american(deviggedBoost.multiplicative);
-    deviggedBoost.multiAmerican = multToAmericanPy.toJs();
-    multToAmericanPy.destroy();
+        const multToAmericanPy = v_percent_to_american(deviggedBoost.multiplicative);
+        deviggedBoost.multiAmerican = multToAmericanPy.toJs();
+        multToAmericanPy.destroy();
 
-    const calculate_product = pyscript.interpreter.globals.get("calculate_product");
-    const multProductPy = calculate_product(deviggedBoost.multiplicative);
-    deviggedBoost.multiFV = multProductPy;
-    console.log(DecimalToAmerican(deviggedBoost.multiFV));
+        const multProductPy = calculate_product(deviggedBoost.multiplicative);
+        deviggedBoost.multiFV = 1 / multProductPy;
+        console.log(DecimalToAmerican(deviggedBoost.multiFV));
 
-    // additive
-    const calculate_additive_probability = pyscript.interpreter.globals.get("calculate_additive_probability");
-    const additiveResultPy = calculate_additive_probability(deviggedBoost.decimalOdds);
-    deviggedBoost.additive = additiveResultPy.toJs();
-    additiveResultPy.destroy();
+        // additive
+        const additiveResultPy = calculate_additive_probability(deviggedBoost.decimalOdds);
+        deviggedBoost.additive = additiveResultPy.toJs();
+        additiveResultPy.destroy();
 
-    const addiToAmericanPy = v_percent_to_american(deviggedBoost.additive);
-    deviggedBoost.addiAmerican = addiToAmericanPy.toJs();
-    addiToAmericanPy.destroy();
+        const addiToAmericanPy = v_percent_to_american(deviggedBoost.additive);
+        deviggedBoost.addiAmerican = addiToAmericanPy.toJs();
+        addiToAmericanPy.destroy();
 
-    const addiProductPy = calculate_product(deviggedBoost.additive);
-    deviggedBoost.addiFV = addiProductPy;
-    console.log(DecimalToAmerican(deviggedBoost.addiFV));
+        const addiProductPy = calculate_product(deviggedBoost.additive);
+        deviggedBoost.addiFV = 1 / addiProductPy;
+        console.log(DecimalToAmerican(deviggedBoost.addiFV));
 
-    // power
-    const calculate_power_probability = pyscript.interpreter.globals.get("calculate_power_probability");
-    for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
-        const powerResultPy = calculate_power_probability(deviggedBoost.decimalOdds[i]);
-        deviggedBoost.power[i] = powerResultPy.toJs();
-        powerResultPy.destroy();
+        // power
+        for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
+            const powerResultPy = calculate_power_probability(deviggedBoost.decimalOdds[i]);
+            deviggedBoost.power[i] = powerResultPy.toJs();
+            powerResultPy.destroy();
+        }
+
+        const powerToAmericanPy = v_percent_to_american(deviggedBoost.power);
+        deviggedBoost.powerAmerican = powerToAmericanPy.toJs();
+        powerToAmericanPy.destroy();
+
+        const powerProductPy = calculate_product(deviggedBoost.power);
+        deviggedBoost.powerFV = 1 / powerProductPy;
+        console.log(DecimalToAmerican(deviggedBoost.powerFV));
+
+        // shin
+        for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
+            const shinResultPy = calculate_shin_probability(deviggedBoost.decimalOdds[i]);
+            deviggedBoost.shin[i] = shinResultPy.toJs();
+            shinResultPy.destroy();
+        }
+
+        const shinToAmericanPy = v_percent_to_american(deviggedBoost.shin);
+        deviggedBoost.shinAmerican = shinToAmericanPy.toJs();
+        shinToAmericanPy.destroy();
+
+        const shinProductPy = calculate_product(deviggedBoost.shin);
+        deviggedBoost.shinFV = 1 / shinProductPy;
+        console.log(DecimalToAmerican(deviggedBoost.shinFV));
+
+        globalDeviggedBoosts.push(deviggedBoost);
     }
 
-    const powerToAmericanPy = v_percent_to_american(deviggedBoost.power);
-    deviggedBoost.powerAmerican = powerToAmericanPy.toJs();
-    powerToAmericanPy.destroy();
-
-    const powerProductPy = calculate_product(deviggedBoost.power);
-    deviggedBoost.powerFV = powerProductPy;
-    console.log(DecimalToAmerican(deviggedBoost.powerFV));
-
-    // shin
-    const calculate_shin_probability = pyscript.interpreter.globals.get("calculate_shin_probability");
-    for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
-        const shinResultPy = calculate_shin_probability(deviggedBoost.decimalOdds[i]);
-        deviggedBoost.shin[i] = shinResultPy.toJs();
-        shinResultPy.destroy();
-    }
-
-    const shinToAmericanPy = v_percent_to_american(deviggedBoost.shin);
-    deviggedBoost.shinAmerican = shinToAmericanPy.toJs();
-    shinToAmericanPy.destroy();
-
-    const shinProductPy = calculate_product(deviggedBoost.shin);
-    deviggedBoost.shinFV = shinProductPy;
-    console.log(DecimalToAmerican(deviggedBoost.shinFV));
-
-    globalDeviggedBoosts.push(deviggedBoost);
     console.log(globalDeviggedBoosts);
 
     console.timeEnd("CalculateDeviggedOdds");
-
 };
+
+// TODO create function for displaying calculations
+//(decOdds - 1) * B365Probability - (1 - B365Probability)
+//EV = (globalDeviggedBoosts[i].decimalOdds - 1) * multiFV - (1 - multiFV)
+
+//(EV2 / (decOdds - 1)) * 0.25m * bankroll;
+// (EV / (decimalOdds - 1) * kellyInput.value * bankrollInput.value
+
+// for each deviggedBoost, target its id element, for each type of devig, create a <p>, change its html
+// using info from each deviggedBoost, append to target
 
 //#endregion
 
@@ -365,7 +376,6 @@ calculateButton.addEventListener("click", () => {
     CalculateDeviggedOdds();
 });
 
-// TODO create function for displaying calculations
 
 // TODO create function for saving objects to file
 
@@ -493,7 +503,7 @@ testOddsButton.addEventListener("click", () => {
     testBoosts.forEach(testBoost => globalBoosts.push(Object.assign(new Boost, testBoost)));
     document.getElementById("allContainer").innerHTML = "";
     CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
-    
+
     console.timeEnd("testOddsButton");
 });
 
@@ -580,7 +590,7 @@ testCalculationsButton.addEventListener("click", () => {
                     "2": 316.55555555555554
                 }
             ],
-            "multiFV": 6.723194058805563,
+            "multiFV": 0.14873882729746152,
             "additive": [
                 {
                     "0": 0.7907748363659208,
@@ -615,7 +625,7 @@ testCalculationsButton.addEventListener("click", () => {
                     "2": 320.3902065799541
                 }
             ],
-            "addiFV": 6.513936775227642,
+            "addiFV": 0.153516995099335,
             "power": [
                 {
                     "0": 0.7928812134815131,
@@ -650,7 +660,7 @@ testCalculationsButton.addEventListener("click", () => {
                     "2": 320.18063004971526
                 }
             ],
-            "powerFV": 6.497611520858406,
+            "powerFV": 0.15390270667765144,
             "shin": [
                 {
                     "0": 0.7866035761728085,
@@ -685,17 +695,350 @@ testCalculationsButton.addEventListener("click", () => {
                     "2": 319.4085094403322
                 }
             ],
-            "shinFV": 6.566215651977585,
+            "shinFV": 0.15229472393262383,
             "juice": {
                 "0": 1.0371243097998755,
                 "1": 1.0214883529547631,
                 "2": 1.0234780234780234
             },
             "testString": "-408/530/1229,149/195/256,100/260/307"
+        },
+        {
+            "betId": "061220232",
+            "originalOdds": [
+                [
+                    423,
+                    336,
+                    225,
+                    173
+                ]
+            ],
+            "originalBoosted": 530,
+            "decimalOdds": [
+                {
+                    "0": 5.23,
+                    "1": 4.359999999999999,
+                    "2": 3.25,
+                    "3": 2.73
+                }
+            ],
+            "decimalBoosted": [
+                {
+                    "0": 6.3
+                }
+            ],
+            "multiplicative": [
+                {
+                    "0": 0.17468704472809032,
+                    "1": 0.2095443220018148,
+                    "2": 0.2811117673624346,
+                    "3": 0.3346568659076602
+                }
+            ],
+            "multiAmerican": [
+                {
+                    "0": 472.45229693853554,
+                    "1": 377.22600662562417,
+                    "2": 255.7303948470823,
+                    "3": 198.81353167154919
+                }
+            ],
+            "multiFV": 0.17468704472809032,
+            "additive": [
+                {
+                    "0": 0.16756582364314745,
+                    "1": 0.20571903289815127,
+                    "2": 0.2840535424253213,
+                    "3": 0.3426616010333799
+                }
+            ],
+            "addiAmerican": [
+                {
+                    "0": 496.7804044156559,
+                    "1": 386.0998935840256,
+                    "2": 252.04630488384194,
+                    "3": 191.8331079363008
+                }
+            ],
+            "addiFV": 0.16756582364314745,
+            "power": [
+                {
+                    "0": 0.16986103534357583,
+                    "1": 0.20642487793570036,
+                    "2": 0.2828097731958212,
+                    "3": 0.3409043135232147
+                }
+            ],
+            "powerAmerican": [
+                {
+                    "0": 488.71653406404374,
+                    "1": 384.43773347488263,
+                    "2": 253.5945694873801,
+                    "3": 193.3374440660759
+                }
+            ],
+            "powerFV": 0.16986103534357583,
+            "shin": [
+                {
+                    "0": 0.1701139630637048,
+                    "1": 0.20705365832986578,
+                    "2": 0.2829886255466716,
+                    "3": 0.3398437530594678
+                }
+            ],
+            "shinAmerican": [
+                {
+                    "0": 487.84122243129264,
+                    "1": 382.9665933295699,
+                    "2": 253.37109329684915,
+                    "3": 194.25287091418573
+                }
+            ],
+            "shinFV": 0.1701139630637048,
+            "juice": {
+                "0": 1.0945550610679455
+            },
+            "testString": "423/336/225/173"
+        },
+        {
+            "betId": "061220233",
+            "originalOdds": [
+                [
+                    109,
+                    -117
+                ],
+                [
+                    117,
+                    -127
+                ],
+                [
+                    -195,
+                    178
+                ]
+            ],
+            "originalBoosted": 685,
+            "decimalOdds": [
+                {
+                    "0": 2.09,
+                    "1": 1.8547008547008548
+                },
+                {
+                    "0": 2.17,
+                    "1": 1.7874015748031495
+                },
+                {
+                    "0": 1.5128205128205128,
+                    "1": 2.7800000000000002
+                }
+            ],
+            "decimalBoosted": [
+                {
+                    "0": 7.85
+                }
+            ],
+            "multiplicative": [
+                {
+                    "0": 0.47017528654692003,
+                    "1": 0.5298247134530799
+                },
+                {
+                    "0": 0.45166039913249373,
+                    "1": 0.5483396008675064
+                },
+                {
+                    "0": 0.6475928801815792,
+                    "1": 0.3524071198184207
+                }
+            ],
+            "multiAmerican": [
+                {
+                    "0": 112.68663594470047,
+                    "1": -112.68663594470044
+                },
+                {
+                    "0": 121.40528634361232,
+                    "1": -121.40528634361239
+                },
+                {
+                    "0": -183.76271186440678,
+                    "1": 183.76271186440678
+                }
+            ],
+            "multiFV": 0.13752253752991916,
+            "additive": [
+                {
+                    "0": 0.4696491963045444,
+                    "1": 0.5303508036954556
+                },
+                {
+                    "0": 0.4506790637243956,
+                    "1": 0.5493209362756045
+                },
+                {
+                    "0": 0.6506523594683575,
+                    "1": 0.34934764053164247
+                }
+            ],
+            "addiAmerican": [
+                {
+                    "0": 112.92488262910796,
+                    "1": -112.92488262910797
+                },
+                {
+                    "0": 121.88738738738736,
+                    "1": -121.8873873873874
+                },
+                {
+                    "0": -186.2478184991274,
+                    "1": 186.24781849912742
+                }
+            ],
+            "addiFV": 0.1377177681417594,
+            "power": [
+                {
+                    "0": 0.46940326157094464,
+                    "1": 0.5305967384290452
+                },
+                {
+                    "0": 0.45021603270460664,
+                    "1": 0.5497839672951951
+                },
+                {
+                    "0": 0.6521232519718494,
+                    "1": 0.34787674802860663
+                }
+            ],
+            "powerAmerican": [
+                {
+                    "0": 113.0364404911281,
+                    "1": -113.03644049112351
+                },
+                {
+                    "0": 122.11559059606275,
+                    "1": -122.1155905959649
+                },
+                {
+                    "0": -187.4581315561449,
+                    "1": 187.4581315557681
+                }
+            ],
+            "powerFV": 0.13781508114778107,
+            "shin": [
+                {
+                    "0": 0.4696491963043588,
+                    "1": 0.530350803695291
+                },
+                {
+                    "0": 0.45067906372410765,
+                    "1": 0.5493209362753674
+                },
+                {
+                    "0": 0.6506523594683127,
+                    "1": 0.3493476405315602
+                }
+            ],
+            "shinAmerican": [
+                {
+                    "0": 112.92488262919211,
+                    "1": -112.92488262903333
+                },
+                {
+                    "0": 121.88738738752912,
+                    "1": -121.88738738727066
+                },
+                {
+                    "0": -186.24781849909064,
+                    "1": 186.24781849919484
+                }
+            ],
+            "shinFV": 0.1377177681416075,
+            "juice": {
+                "0": 1.0176394064339735,
+                "1": 1.020300858726324,
+                "2": 1.0207291793683697
+            },
+            "testString": "109/-117,117/-127,-195/178"
+        },
+        {
+            "betId": "061220234",
+            "originalOdds": [
+                [
+                    141,
+                    -191
+                ]
+            ],
+            "originalBoosted": 185,
+            "decimalOdds": [
+                {
+                    "0": 2.41,
+                    "1": 1.5235602094240837
+                }
+            ],
+            "decimalBoosted": [
+                {
+                    "0": 2.85
+                }
+            ],
+            "multiplicative": [
+                {
+                    "0": 0.3873234749970052,
+                    "1": 0.6126765250029947
+                }
+            ],
+            "multiAmerican": [
+                {
+                    "0": 158.18213058419244,
+                    "1": -158.1821305841924
+                }
+            ],
+            "multiFV": 0.38732347499700526,
+            "additive": [
+                {
+                    "0": 0.3792901855099742,
+                    "1": 0.6207098144900258
+                }
+            ],
+            "addiAmerican": [
+                {
+                    "0": 163.65037593984962,
+                    "1": -163.65037593984965
+                }
+            ],
+            "addiFV": 0.3792901855099742,
+            "power": [
+                {
+                    "0": 0.3748222463251534,
+                    "1": 0.6251777536755183
+                }
+            ],
+            "powerAmerican": [
+                {
+                    "0": 166.7931292243826,
+                    "1": -166.79312922486065
+                }
+            ],
+            "powerFV": 0.3748222463251534,
+            "shin": [
+                {
+                    "0": 0.37929018551018595,
+                    "1": 0.62070981449016
+                }
+            ],
+            "shinAmerican": [
+                {
+                    "0": 163.65037593970243,
+                    "1": -163.65037593994296
+                }
+            ],
+            "shinFV": 0.37929018551018595,
+            "juice": {
+                "0": 1.0712951476522508
+            },
+            "testString": "141/-191"
         }
     ];
     CalculateDeviggedOdds();
-    //  TODO compare
+
     assert(globalDeviggedBoosts[0].betId === temp[0].betId, "betId match");
     assert(globalDeviggedBoosts[0].addiFV === temp[0].addiFV, "addiFV match");
     assert(globalDeviggedBoosts[0].multiFV === temp[0].multiFV, "multiFV match");
