@@ -17,13 +17,27 @@ class DeviggedBoost {
     decimalOdds = [[]];
     decimalBoosted;
     multiplicative = [[]];
+    multiAmerican = [[]];
+    multiFV;
     additive = [[]];
+    addAmerican = [[]];
+    addFV;
     power = [[]];
+    powerAmerican = [[]];
+    powerFV;
     shin = [[]];
+    shinAmerican = [[]];
+    shinFV;
+    juice = [[]];
+    testString;
     constructor(betId, originalOdds, originalBoosted) {
         this.betId = betId;
         this.originalOdds = originalOdds;
         this.originalBoosted = originalBoosted;
+
+        let tempString = [];
+        originalOdds.forEach(odds => tempString.push(odds.join("/")));
+        this.testString = tempString.join(",");
     }
 }
 //#endregion
@@ -44,6 +58,22 @@ const GetDate = () => {
 
     return formattedDate;
 };
+
+const DecimalToAmerican = (decimal) => {
+    if (decimal <= 2) {
+        return (-100 / (decimal - 1)).toFixed(2);
+    } else {
+        return (100 * (decimal - 1)).toFixed(2);
+    }
+}
+
+const AmericanToDecimal = (americanOdds) => {
+    if (americanOdds > 0) {
+        return (americanOdds / 100) + 1;
+    } else {
+        return 100 / (-americanOdds) + 1;
+    }
+}
 
 const FindBoostById = (id) => {
     return globalBoosts.find(boost => boost.id === id);
@@ -216,27 +246,53 @@ const CollectUserInputsAndUpdateObjects = () => {
 const CalculateDeviggedOdds = () => {
     const temp = globalBoosts[0];
     console.log(temp.odds);
-    const firstOdds = temp.odds[1];
-    console.log("firstOdds: " + firstOdds);
+    
+    const deviggedBoost = new DeviggedBoost(temp.id, temp.odds, temp.boosted);
+
     const v_american_to_decimal = pyscript.interpreter.globals.get("v_american_to_decimal");
-    let americanToDecimalResultsPy = v_american_to_decimal(temp.odds);
-    let americanToDecimalResultsJs = americanToDecimalResultsPy.toJs();
-    console.log(americanToDecimalResultsJs);
+    const americanToDecimalResultsPy = v_american_to_decimal(temp.odds);
+    console.log(americanToDecimalResultsPy.toJs());
+    deviggedBoost.decimalOdds = americanToDecimalResultsPy.toJs();
+    americanToDecimalResultsPy.destroy();
 
-    //let americanToDecimalResultsJs = americanToDecimalResultsPy.toJs();
-    //console.log(americanToDecimalResultsJs);
+    const calculate_juice = pyscript.interpreter.globals.get("calculate_juice");
+    const juiceResultPy = calculate_juice(deviggedBoost.decimalOdds);
+    deviggedBoost.juice = juiceResultPy.toJs();
+    juiceResultPy.destroy();
 
-    const calculate_multiplicative_probability = pyscript.interpreter.globals.get("calculate_multiplicative_probability");  
-    const result = calculate_multiplicative_probability(americanToDecimalResultsJs);
-    console.log(result.toJs());
+    const boostedConverstionResultPy = v_american_to_decimal([[deviggedBoost.originalBoosted]]);
+    const boostedConverstionResultJs = boostedConverstionResultPy.toJs();
+    deviggedBoost.decimalBoosted = boostedConverstionResultJs;
+    boostedConverstionResultPy.destroy();
 
-    // OK all of this works, woo!
+    // multiplicative
+    const calculate_multiplicative_probability = pyscript.interpreter.globals.get("calculate_multiplicative_probability");
+    const multiplicativeResultPy = calculate_multiplicative_probability(deviggedBoost.decimalOdds);
+    deviggedBoost.multiplicative = multiplicativeResultPy.toJs();
+    multiplicativeResultPy.destroy();
+
+    const v_percent_to_american = pyscript.interpreter.globals.get("v_percent_to_american");
+    const multToAmericanPy = v_percent_to_american(deviggedBoost.multiplicative);
+    deviggedBoost.multiAmerican = multToAmericanPy.toJs();
+    multToAmericanPy.destroy();
+
+    const calculate_product = pyscript.interpreter.globals.get("calculate_product");
+    const multProductPy = calculate_product(deviggedBoost.multiplicative);
+    deviggedBoost.multiFV = multProductPy;
+    console.log(DecimalToAmerican(deviggedBoost.multiFV));
+
+    // additive
+
+    
+    globalDeviggedBoosts.push(deviggedBoost);
+    console.log(globalDeviggedBoosts);
 };
 
 //#endregion
 
 //#region app entry
 let globalBoosts = [];
+let globalDeviggedBoosts = [];
 
 const buildTableButton = document.getElementById("buildTableButton");
 buildTableButton.addEventListener("click", () => {

@@ -78,28 +78,58 @@
 
             return implied_probabilities
 
+        
         def american_to_decimal(american_odds):
             if american_odds > 0:
                 return (american_odds / 100) + 1
             else:
                 return 100 / (-american_odds) + 1
 
+        
         def decimal_to_american(decimal):
             if decimal <= 2:
                 return (-100 / (decimal - 1))
             else:
                 return (100 * (decimal - 1))
 
+        
+        def percent_to_american(percent):
+            decimal = 1 / percent
+            return decimal_to_american(decimal)
+
+
+        def calculate_product(percent):
+            percentNp = np.array(percent.to_py())
+            decimal = 1 / percentNp
+            firsts = decimal[:, 0]
+            result = np.prod(firsts)
+            return result
+
+        def calculate_juice(decimal):
+            decimalNp = np.array(decimal.to_py())
+            percent = 1 / decimalNp
+            juice = np.sum(percent, axis=1)
+            return juice
+
         def v_american_to_decimal(american_odds):
             result = np.vectorize(american_to_decimal)(np.asarray(american_odds.to_py()))
             return result
+
 
         def v_decimal_to_american(decimal):
             result = np.vectorize(decimal_to_american)(np.asarray(decimal.to_py()))
             return result
 
+
+        def v_percent_to_american(percent):
+            result = np.vectorize(percent_to_american)(np.asarray(percent.to_py()))
+            #result = (np.rint(result)).astype(int)
+            return result
+
+
         def hello_world():
             print('Hello, World from pyscript!')
+
 
         def data_test(*args):
             print(args)
