@@ -3,10 +3,13 @@
 <head>
     <title>Ice Cream Picker</title>
     <meta charset="utf-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <link rel="stylesheet" href="assets/css/styles.css" />
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <script defer src="assets/js/main.js"></script>
 </head>
@@ -135,123 +138,58 @@
             print(args)
 
     </py-script>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                <label for="bankroll">Bankroll:
-                    <input type="number" id="bankroll" name="bankroll">
-                </label>
-            </div>
-        </div>
-    
-        <br />
-    
-        <div class="row">
-            <div class="col">
-                <div>
-                    <textarea id="gridBuilderTextArea" rows="5" cols="50"></textarea>
+    <main>
+        <div class="container-fluid">
+            <h2>LazyStupidMike's Sportsbook Probability Calculator</h2>
+            <br />
+            <div class="row">
+                <div class="col">
+                    <label for="bankroll">Bankroll:
+                        <input type="number" id="bankroll" name="bankroll" value="1000">
+                    </label>
+                    <label for="kelly">Kelly:
+                        <input type="number" id="kelly" name="kelly" value="0.25">
+                    </label>
                 </div>
             </div>
-        </div>
     
-        <br />
-        <div>
-            <button id="helloWorldButton">Hello World</button>
-        </div>
-        <br />
-        <div>
-            <button id="testTextAreaButton">Test TextArea Data</button>
-        </div>
-        <div>
-            <button id="testOddsButton">Test Odds Data</button>
-        </div>
-        <div>
-            <button id="testCalculationsButton">Test Calculations</button>
-        </div>
-        <br />
-        <div>
-            <button id="buildTableButton">Build Table</button>
-        </div>
-        <br />
-        <div>
-            <button id="calculateButton">Calculate</button>
-        </div>
-    </div>
-
-    <br />
-    <div id="allContainer">
-        <!--<div class="eventContainer" id="20230607-1">
+            <br />
+    
+            <div class="row">
+                <div class="col">
+                    <div>
+                        <textarea id="gridBuilderTextArea" rows="5" cols="50"></textarea>
+                    </div>
+                </div>
+            </div>
+    
+            <br />
             <div>
-                <div class="userInput fst-italic" contenteditable="true" data-text="Book"></div>
-                <div class="userInput fst-italic" contenteditable="true" data-text="Boost Description..."></div>
+                <button id="helloWorldButton">Hello World</button>
+            </div>
+            <br />
+            <div>
+                <button id="testTextAreaButton">Test TextArea Data</button>
             </div>
             <div>
-                <div class="fw-bold mx-2">Odds</div>
-                <div class="legGrouping">
-                    <div class="userInput" contenteditable="true" data-text="Leg1A"></div>
-                    <div class="userInput" contenteditable="true" data-text="Leg1B"></div>
-                </div>
-                <div class="legGrouping">
-                    <div class="userInput" contenteditable="true" data-text="Leg2A"></div>
-                    <div class="userInput" contenteditable="true" data-text="Leg2B"></div>
-                </div>
-                <div class="legGrouping">
-                    <div class="userInput" contenteditable="true" data-text="Leg3A"></div>
-                    <div class="userInput" contenteditable="true" data-text="Leg3B"></div>
-                </div>
-                <div class="finalGrouping">
-                    <div class="fw-bold">Final</div>
-                    <div class="userInput" contenteditable="true" data-text="Boosted"></div>
-                </div>
+                <button id="testOddsButton">Test Odds Data</button>
             </div>
-            <p>
-                Multiplicative:<br />
-                Leg#1 (159); Market Juice = 2.1 %; Fair Value = +164 (37.8 %)<br />
-                Leg#2 (-138); Market Juice = 2.0 %; Fair Value = -132 (56.8 %)<br />
-                Leg#3 (-143); Market Juice = 2.0 %; Fair Value = -137 (57.7 %)<br />
-                Final Odds (+835); Σ(Market Juice) = 6.10 %; Fair Value = +706 (12.4 %)<br />
-                Summary; EV% = 16.0 %, Kelly Wager = $4.78 (Full=1.91u, 1/2=0.96u, 1/4=0.48u, FB = 103.6 %)
-            </p>
-        </div>-->
-    </div>
-
-    <!--
-        for UX might be better to have inputs all gruped up at the top and then print all results as text
-        this maybe can be simpler just rows of text
-        <div>
-            <div class="fw-bold">Multi</div>
-            <div class="devigCalculations">LegDV</div>
-            <div class="devigCalculations">Leg%</div>
-            <div class="devigCalculations">LegDV</div>
-            <div class="devigCalculations">Leg%</div>
-            <div class="devigCalculations">Leg</div>
-            <div class="devigCalculations">Leg%</div>
-            <div class="devigCalculations">FinalDev</div>
+            <div>
+                <button id="testCalculationsButton">Test Calculations</button>
+            </div>
+            <br />
+            <div>
+                <button id="buildTableButton">Build Table</button>
+            </div>
+            <br />
+            <div>
+                <button id="calculateButton">Calculate</button>
+            </div>
         </div>
-        <div>
-            <div>Juice = 2.1%, 2.0%, 2.0%; Total = 6.10%;</div>
-        </div>
-        <div>
-            <div>EV% 16.0%; Kelly Wager = $4.78 (Full=1.91u, 1/2=0.96u, 1/4=0.48u)</div>
-        </div>
-        
-    -->
-
-    <!-- Click this button to log 'Apple', 'Banana', 'Candy', 'Donut' by sorting in Python-->
-     <!-- <button onclick="sortInPython(['Candy', 'Donut', 'Apple', 'Banana'])">Sort In Python And Log</button>
-     <script>
-         function sortInPython(data){
-             js_sorted = pyscript.interpreter.globals.get('sorted') //grab python's 'sorted' function
-             const sorted_data = js_sorted(data) //apply the function to the 'data' argument
-             for (const item of sorted_data){
-                 console.log(item)
-             }
-             hello_world = pyscript.interpreter.globals.get("hello_world"); 
-             hello_world();
-         }
-     </script> -->
-
+    
+        <br />
+        <div id="allContainer"></div>
+    </main>
 </body>
 
 </html>

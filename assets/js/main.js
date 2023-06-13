@@ -75,6 +75,15 @@ const AmericanToDecimal = (americanOdds) => {
     }
 }
 
+const PercentToAmerican = (percent) => {
+    let decimal = 1 / percent;
+    return DecimalToAmerican(decimal);
+}
+
+const Capitlize = (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1)
+}
+
 const FindBoostById = (id) => {
     return globalBoosts.find(boost => boost.id === id);
 }
@@ -206,36 +215,29 @@ const CollectUserInputsAndUpdateObjects = () => {
         let boost = FindBoostById(eventContainer.id);
 
         if (boost) {
-            console.log("Found eventContainer id: " + boost.id);
 
             boost.book = eventContainer.childNodes[0].childNodes[0].innerText;
             boost.description = eventContainer.childNodes[0].childNodes[1].innerText;
 
             // populate odds
             const legGroupings = eventContainer.querySelectorAll(".legGrouping");
-            console.log(legGroupings)
             let allOdds = [];
 
             for (let j = 0; j < legGroupings.length; j++) {
                 const legGrouping = legGroupings[j];
                 const sides = legGrouping.querySelectorAll(".userInput");
-                console.log(sides);
 
                 let odds = [];
                 for (let k = 0; k < sides.length; k++) {
                     odds.push(parseInt(sides[k].innerText));
-                    console.log(sides[k]);
                 }
                 allOdds.push(odds);
             }
-            console.log(allOdds);
-            console.log(allOdds.length);
 
             boost.odds = allOdds;
 
             // populate boosted (final) odds
             const finalOddsValue = parseInt(eventContainer.querySelector("div.finalGrouping>div.userInput").innerText);
-            console.log(finalOddsValue);
             boost.boosted = finalOddsValue;
         }
         else {
@@ -243,8 +245,8 @@ const CollectUserInputsAndUpdateObjects = () => {
         }
     }
     console.timeEnd("CollectUserInputsAndUpdateObjects");
-
 };
+
 
 const CalculateDeviggedOdds = () => {
     console.time("CalculateDeviggedOdds");
@@ -259,17 +261,15 @@ const CalculateDeviggedOdds = () => {
     const calculate_power_probability = pyscript.interpreter.globals.get("calculate_power_probability");
     const calculate_shin_probability = pyscript.interpreter.globals.get("calculate_shin_probability");
 
-    // loop globalBoosts to get deviggedOdds
+    // loop globalBoosts to create and push to deviggedOdds
     globalDeviggedBoosts = [];
 
     for (let i = 0; i < globalBoosts.length; i++) {
-        const temp = globalBoosts[i];
-        console.log(temp.odds);
+        const boost = globalBoosts[i];
 
-        const deviggedBoost = new DeviggedBoost(temp.id, temp.odds, temp.boosted);
+        const deviggedBoost = new DeviggedBoost(boost.id, boost.odds, boost.boosted);
 
-        const americanToDecimalResultsPy = v_american_to_decimal(temp.odds);
-        console.log(americanToDecimalResultsPy.toJs());
+        const americanToDecimalResultsPy = v_american_to_decimal(boost.odds);
         deviggedBoost.decimalOdds = americanToDecimalResultsPy.toJs();
         americanToDecimalResultsPy.destroy();
 
@@ -293,7 +293,6 @@ const CalculateDeviggedOdds = () => {
 
         const multProductPy = calculate_product(deviggedBoost.multiplicative);
         deviggedBoost.multiFV = 1 / multProductPy;
-        console.log(DecimalToAmerican(deviggedBoost.multiFV));
 
         // additive
         const additiveResultPy = calculate_additive_probability(deviggedBoost.decimalOdds);
@@ -306,7 +305,6 @@ const CalculateDeviggedOdds = () => {
 
         const addiProductPy = calculate_product(deviggedBoost.additive);
         deviggedBoost.addiFV = 1 / addiProductPy;
-        console.log(DecimalToAmerican(deviggedBoost.addiFV));
 
         // power
         for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
@@ -321,7 +319,6 @@ const CalculateDeviggedOdds = () => {
 
         const powerProductPy = calculate_product(deviggedBoost.power);
         deviggedBoost.powerFV = 1 / powerProductPy;
-        console.log(DecimalToAmerican(deviggedBoost.powerFV));
 
         // shin
         for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
@@ -336,7 +333,6 @@ const CalculateDeviggedOdds = () => {
 
         const shinProductPy = calculate_product(deviggedBoost.shin);
         deviggedBoost.shinFV = 1 / shinProductPy;
-        console.log(DecimalToAmerican(deviggedBoost.shinFV));
 
         globalDeviggedBoosts.push(deviggedBoost);
     }
@@ -346,21 +342,109 @@ const CalculateDeviggedOdds = () => {
     console.timeEnd("CalculateDeviggedOdds");
 };
 
-// TODO create function for displaying calculations
-//(decOdds - 1) * B365Probability - (1 - B365Probability)
-//EV = (globalDeviggedBoosts[i].decimalOdds - 1) * multiFV - (1 - multiFV)
 
-//(EV2 / (decOdds - 1)) * 0.25m * bankroll;
-// (EV / (decimalOdds - 1) * kellyInput.value * bankrollInput.value
+const CalculateAndDisplayEV = () => {
+    console.time("CalculateAndDisplayEV");
 
-// for each deviggedBoost, target its id element, for each type of devig, create a <p>, change its html
-// using info from each deviggedBoost, append to target
+    // TODO create function for displaying calculations
+    for (let i = 0; i < globalDeviggedBoosts.length; i++) {
+        const deviggedBoost = globalDeviggedBoosts[i];
+
+        // for each deviggedBoost, target its id element, for each type of devig, create a <p>, change its html
+        // using info from each deviggedBoost, append to target
+        // methods...multiplicative multiAmerican multiFV
+        //           additive addiAmerican addiFV
+        //           power powerAmerican powerFV
+        //           shin shinAmerican shinFV
+
+        DevigMethodCalcAndDisplay(deviggedBoost, "multiplicative", "multi");
+        DevigMethodCalcAndDisplay(deviggedBoost, "additive", "addi");
+        DevigMethodCalcAndDisplay(deviggedBoost, "power", "power");
+        DevigMethodCalcAndDisplay(deviggedBoost, "shin", "shin");
+    }
+
+    console.timeEnd("CalculateAndDisplayEV");
+}
+
+
+const EVAndKellyCalcAndDisplay = (deviggedBoost, EV) => {
+    const fullKelly = (EV / (deviggedBoost.decimalBoosted - 1)) * 100;
+    const halfKelly = fullKelly / 2;
+    const quarterKelly = fullKelly / 4;
+    const targetKellyDollars = fullKelly / 100 * kellyInputValue * bankrollInputValue;
+
+    let symbol = "❌";
+    if (targetKellyDollars > 0) symbol = "✅";
+
+    return `Summary; EV% = ${(EV * 100).toFixed(1)} %, Kelly Wager = $${targetKellyDollars.toFixed(2)} (Full=${fullKelly.toFixed(2)}u, 1/2=${halfKelly.toFixed(2)}, 1/4=${quarterKelly.toFixed(2)}u) ${symbol}`;
+}
+
+
+const DevigMethodCalcAndDisplay = (deviggedBoost, methodName, methodNameShort) => {
+    console.time(`${methodName}CalcAndDisplay`);
+
+    const pElement = Calculate(deviggedBoost, methodName, methodNameShort);
+
+    const target = document.getElementById(deviggedBoost.betId);
+    target.append(pElement);
+
+    console.timeEnd(`${methodName}CalcAndDisplay`);
+}
+
+
+const Calculate = (deviggedBoost, methodName, methodNameShort) => {
+    let pElement = document.createElement("p");
+    let pHtml = [];
+    pHtml.push(`<strong>${Capitlize(methodName)}:</strong><br/>`);
+    const legCount = deviggedBoost.originalOdds.length;
+    let juiceSum = 0;
+    for (let j = 0; j < legCount; j++) {
+        const juice = ((deviggedBoost.juice[j] - 1) * 100);
+        juiceSum += parseFloat(juice);
+        const american = deviggedBoost[`${methodNameShort}American`][j][0];
+        let sign = "";
+        if (american > 0) sign = "+"
+        pHtml.push(`Leg#${j + 1} (${deviggedBoost.originalOdds[j][0]}); Market Juice = ${juice.toFixed(1)} %; Fair Value = ${sign}${Math.round(american)} (${(deviggedBoost[methodName][j][0] * 100).toFixed(1)} %)<br/>`);
+    }
+    let sign = "";
+    const originalBoosted = deviggedBoost.originalBoosted;
+    if (originalBoosted > 0) sign = "+";
+    const methodFV = deviggedBoost[`${methodNameShort}FV`];
+    const methodFVAmerican = Math.round(PercentToAmerican(methodFV));
+    let sign2 = "";
+    if (methodFVAmerican > 0) sign2 = "+";
+    pHtml.push(`Final Odds (${sign}${deviggedBoost.originalBoosted}); Σ(Market Juice) = ${juiceSum.toFixed(2)} %; Fair Value = ${sign2}${methodFVAmerican} (${(methodFV * 100).toFixed(1)} %)<br/>`);
+
+    //EV = (globalDeviggedBoosts[i].decimalBoosted - 1) * methodFV - (1 - methodFV)
+    const EV = (deviggedBoost.decimalBoosted - 1) * methodFV - (1 - methodFV);
+
+    pHtml.push(EVAndKellyCalcAndDisplay(deviggedBoost, EV));
+
+    pElement.innerHTML = pHtml.join("");
+
+    return pElement;
+}
+
+
+const ShowTestStrings = () => {
+    for(let i = 0; i < globalDeviggedBoosts.length; i++){
+        const boost = globalDeviggedBoosts[i];
+        const target = document.getElementById(boost.betId);
+        const target2 = target.children[0];
+        let span = document.createElement("span");
+        span.className = "text-body-tertiary";
+        span.innerText = boost.testString;
+        target2.append(span);
+    }
+}
 
 //#endregion
 
 //#region app entry
 let globalBoosts = [];
 let globalDeviggedBoosts = [];
+const bankrollInputValue = document.getElementById("bankroll").value;
+const kellyInputValue = document.getElementById("kelly").value;
 
 const buildTableButton = document.getElementById("buildTableButton");
 buildTableButton.addEventListener("click", () => {
@@ -369,13 +453,13 @@ buildTableButton.addEventListener("click", () => {
     CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
 });
 
-// collect odds and other data for each eventContainer
 const calculateButton = document.getElementById("calculateButton");
 calculateButton.addEventListener("click", () => {
     CollectUserInputsAndUpdateObjects();
     CalculateDeviggedOdds();
+    CalculateAndDisplayEV();
+    ShowTestStrings();
 });
-
 
 // TODO create function for saving objects to file
 
@@ -406,7 +490,6 @@ testTextAreaButton.addEventListener("click", () => {
     document.getElementById("gridBuilderTextArea").value = "2, 2, 2\n4\n3, 3,3, 3\n2,3";
 });
 
-// TODO do tests by creating globalBoosts objects...
 const testOddsButton = document.getElementById("testOddsButton");
 testOddsButton.addEventListener("click", () => {
     console.log("testOddsButton clicked...");
@@ -1044,6 +1127,20 @@ testCalculationsButton.addEventListener("click", () => {
     assert(globalDeviggedBoosts[0].multiFV === temp[0].multiFV, "multiFV match");
     assert(globalDeviggedBoosts[0].powerFV === temp[0].powerFV, "powerFV match");
     assert(globalDeviggedBoosts[0].shinFV === temp[0].shinFV, "shinFV match");
+
+    let testPElement = document.createElement("p");
+    testPElement.innerHTML = "<strong>Multiplicative:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -343 (77.4 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.3 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +105 (48.9 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +572 (14.9 %)<br>Summary; EV% = 11.6 %, Kelly Wager = $4.44 (Full=1.78u, 1/2=0.89, 1/4=0.44u) ✅";
+    let pElement = Calculate(globalDeviggedBoosts[0], "multiplicative", "multi");
+    assert(testPElement.innerHTML === pElement.innerHTML, "multi pElement match");
+    testPElement.innerHTML = "<strong>Additive:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -378 (79.1 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +103 (49.2 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +551 (15.4 %)<br>Summary; EV% = 15.1 %, Kelly Wager = $5.82 (Full=2.33u, 1/2=1.16, 1/4=0.58u) ✅";
+    pElement = Calculate(globalDeviggedBoosts[0], "additive", "addi");
+    assert(testPElement.innerHTML === pElement.innerHTML, "addi pElement match");
+    testPElement.innerHTML = "<strong>Power:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -383 (79.3 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +103 (49.2 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +550 (15.4 %)<br>Summary; EV% = 15.4 %, Kelly Wager = $5.93 (Full=2.37u, 1/2=1.19, 1/4=0.59u) ✅";
+    pElement = Calculate(globalDeviggedBoosts[0], "power", "power");
+    assert(testPElement.innerHTML === pElement.innerHTML, "power pElement match");
+    testPElement.innerHTML = "<strong>Shin:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -369 (78.7 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +104 (49.1 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +557 (15.2 %)<br>Summary; EV% = 14.2 %, Kelly Wager = $5.47 (Full=2.19u, 1/2=1.09, 1/4=0.55u) ✅";
+    pElement = Calculate(globalDeviggedBoosts[0], "shin", "shin");
+    assert(testPElement.innerHTML === pElement.innerHTML, "shin pElement match");
 
     console.timeEnd("testCalculationsButton");
 });
