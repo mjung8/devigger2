@@ -44,8 +44,8 @@
             odds = np.array(args.to_py())
             pi = 1 / odds
 
-            normalization = np.sum(pi, axis=1)
-            implied_probabilities = pi / normalization[:, np.newaxis]
+            normalization = np.sum(pi, axis=1, keepdims=True)
+            implied_probabilities = pi / normalization
 
             return implied_probabilities
 
@@ -54,7 +54,7 @@
             odds = np.array(args.to_py())
             pi = 1 / odds
 
-            implied_probabilities = pi + 1 / len(odds) * (1 - sum(pi))
+            implied_probabilities = pi + 1 / odds.shape[1] * (1 - np.sum(pi, axis=1, keepdims=True))
 
             return implied_probabilities
 

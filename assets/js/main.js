@@ -20,8 +20,8 @@ class DeviggedBoost {
     multiAmerican = [[]];
     multiFV;
     additive = [[]];
-    addAmerican = [[]];
-    addFV;
+    addiAmerican = [[]];
+    addiFV;
     power = [[]];
     powerAmerican = [[]];
     powerFV;
@@ -282,7 +282,33 @@ const CalculateDeviggedOdds = () => {
     console.log(DecimalToAmerican(deviggedBoost.multiFV));
 
     // additive
+    const calculate_additive_probability = pyscript.interpreter.globals.get("calculate_additive_probability");
+    const additiveResultPy = calculate_additive_probability(deviggedBoost.decimalOdds);
+    deviggedBoost.additive = additiveResultPy.toJs();
+    additiveResultPy.destroy();
 
+    const addiToAmericanPy = v_percent_to_american(deviggedBoost.additive);
+    deviggedBoost.addiAmerican = addiToAmericanPy.toJs();
+    addiToAmericanPy.destroy();
+
+    const addiProductPy = calculate_product(deviggedBoost.additive);
+    deviggedBoost.addiFV = addiProductPy;
+    console.log(DecimalToAmerican(deviggedBoost.addiFV));
+
+    // power
+    // for (let i = 0; i < deviggedBoost.decimalOdds.length)
+        // const calculate_power_probability = pyscript.interpreter.globals.get("calculate_power_probability");
+        // const powerResultPy = calculate_power_probability(deviggedBoost.decimalOdds[i]);
+        // deviggedBoost.power[i] = powerResultPy.toJs();
+        // powerResultPy.destroy();
+
+    // const powerToAmericanPy = v_percent_to_american(deviggedBoost.power);
+    // deviggedBoost.powerAmerican = powerToAmericanPy.toJs();
+    // powerToAmericanPy.destroy();
+
+    // const powerProductPy = calculate_product(deviggedBoost.power);
+    // deviggedBoost.powerFV = powerProductPy;
+    // console.log(DecimalToAmerican(deviggedBoost.powerFV));
     
     globalDeviggedBoosts.push(deviggedBoost);
     console.log(globalDeviggedBoosts);
