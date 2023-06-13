@@ -9,6 +9,23 @@ class Boost {
         this.boosted = boosted;
     }
 };
+
+class DeviggedBoost {
+    betId;
+    originalOdds = [[]];
+    originalBoosted;
+    decimalOdds = [[]];
+    decimalBoosted;
+    multiplicative = [[]];
+    additive = [[]];
+    power = [[]];
+    shin = [[]];
+    constructor(betId, originalOdds, originalBoosted) {
+        this.betId = betId;
+        this.originalOdds = originalOdds;
+        this.originalBoosted = originalBoosted;
+    }
+}
 //#endregion
 
 //#region functions
@@ -82,8 +99,10 @@ const CreateHtmlFromBoosts = (boosts, target) => {
                 const userInputDiv = document.createElement("div");
                 userInputDiv.className = "userInput";
                 userInputDiv.setAttribute("contenteditable", "true");
-                if (boost.odds[j]) {
-                    userInputDiv.textContent = boost.odds[j].toString();
+                if (boost.odds[i]) {
+                    if (boost.odds[i][j]) {
+                        userInputDiv.textContent = boost.odds[i][j].toString();
+                    }
                 }
 
                 legGroupingDiv.appendChild(userInputDiv);
@@ -192,6 +211,28 @@ const CollectUserInputsAndUpdateObjects = () => {
         }
     }
 };
+
+// TODO create function for doing calculations
+const CalculateDeviggedOdds = () => {
+    const temp = globalBoosts[0];
+    console.log(temp.odds);
+    const firstOdds = temp.odds[1];
+    console.log("firstOdds: " + firstOdds);
+    const v_american_to_decimal = pyscript.interpreter.globals.get("v_american_to_decimal");
+    let americanToDecimalResultsPy = v_american_to_decimal(temp.odds);
+    let americanToDecimalResultsJs = americanToDecimalResultsPy.toJs();
+    console.log(americanToDecimalResultsJs);
+
+    //let americanToDecimalResultsJs = americanToDecimalResultsPy.toJs();
+    //console.log(americanToDecimalResultsJs);
+
+    const calculate_multiplicative_probability = pyscript.interpreter.globals.get("calculate_multiplicative_probability");  
+    const result = calculate_multiplicative_probability(americanToDecimalResultsJs);
+    console.log(result.toJs());
+
+    // OK all of this works, woo!
+};
+
 //#endregion
 
 //#region app entry
@@ -199,6 +240,7 @@ let globalBoosts = [];
 
 const buildTableButton = document.getElementById("buildTableButton");
 buildTableButton.addEventListener("click", () => {
+    document.getElementById("allContainer").innerHTML = "";
     globalBoosts = CreateBoostsFromTextArea();
     CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
 });
@@ -207,9 +249,10 @@ buildTableButton.addEventListener("click", () => {
 const calculateButton = document.getElementById("calculateButton");
 calculateButton.addEventListener("click", () => {
     CollectUserInputsAndUpdateObjects();
+    CalculateDeviggedOdds();
 });
 
-// TODO create function for doing calculations
+
 
 // TODO create function for displaying calculations
 
@@ -220,11 +263,20 @@ calculateButton.addEventListener("click", () => {
 
 
 //#region testing
+const pythonHelloWorld = () => {
+    yello_world = pyscript.interpreter.globals.get("hello_world");
+    yello_world();
+};
+
+const pythonDataTransferTest = (args) => {
+    data_test = pyscript.interpreter.globals.get("data_test");
+    data_test(args);
+}
+
 const helloWorldButton = document.getElementById('helloWorldButton');
 helloWorldButton.addEventListener("click", () => {
     console.log("helloWorldButton clicked...");
-    yello_world = pyscript.interpreter.globals.get("hello_world");
-    yello_world();
+    pythonHelloWorld();
 });
 
 const testTextAreaButton = document.getElementById("testTextAreaButton");
@@ -238,7 +290,96 @@ const testOddsButton = document.getElementById("testOddsButton");
 testOddsButton.addEventListener("click", () => {
     console.log("testOddsButton clicked...");
     globalBoosts = [];
-
+    const testBoosts = [
+        {
+            "id": "061220231",
+            "book": "B99",
+            "description": "Barca, Getafe, Girona all to win!",
+            "legs": [
+                "3",
+                "3",
+                "3"
+            ],
+            "odds": [
+                [
+                    -408,
+                    530,
+                    1229
+                ],
+                [
+                    149,
+                    195,
+                    256
+                ],
+                [
+                    100,
+                    260,
+                    307
+                ]
+            ],
+            "boosted": 650
+        },
+        {
+            "id": "061220232",
+            "book": "NSB",
+            "description": "Berrios/Valdez 6+ Ks vs TSB",
+            "legs": [
+                "4"
+            ],
+            "odds": [
+                [
+                    423,
+                    336,
+                    225,
+                    173
+                ]
+            ],
+            "boosted": 530
+        },
+        {
+            "id": "061220233",
+            "book": "B99",
+            "description": "HOU, NYM, TOR all to win!",
+            "legs": [
+                "2",
+                "2",
+                "2"
+            ],
+            "odds": [
+                [
+                    109,
+                    -117
+                ],
+                [
+                    117,
+                    -127
+                ],
+                [
+                    -195,
+                    178
+                ]
+            ],
+            "boosted": 685
+        },
+        {
+            "id": "061220234",
+            "book": "B99",
+            "description": "Murray 4+ 3s vs FD/TSB/BR",
+            "legs": [
+                "2"
+            ],
+            "odds": [
+                [
+                    141,
+                    -191
+                ]
+            ],
+            "boosted": 185
+        }
+    ];
+    testBoosts.forEach(testBoost => globalBoosts.push(Object.assign(new Boost, testBoost)));
+    document.getElementById("allContainer").innerHTML = "";
+    CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
 });
 
 const consoleLogBoost = (boost) => {
