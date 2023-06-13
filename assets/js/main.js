@@ -244,9 +244,14 @@ const CollectUserInputsAndUpdateObjects = () => {
 
 // TODO create function for doing calculations
 const CalculateDeviggedOdds = () => {
+    // get all python functions
+
+    // loop globalBoosts to get deviggedOdds
+    globalDeviggedBoosts = [];
+    
     const temp = globalBoosts[0];
     console.log(temp.odds);
-    
+
     const deviggedBoost = new DeviggedBoost(temp.id, temp.odds, temp.boosted);
 
     const v_american_to_decimal = pyscript.interpreter.globals.get("v_american_to_decimal");
@@ -296,20 +301,37 @@ const CalculateDeviggedOdds = () => {
     console.log(DecimalToAmerican(deviggedBoost.addiFV));
 
     // power
-    // for (let i = 0; i < deviggedBoost.decimalOdds.length)
-        // const calculate_power_probability = pyscript.interpreter.globals.get("calculate_power_probability");
-        // const powerResultPy = calculate_power_probability(deviggedBoost.decimalOdds[i]);
-        // deviggedBoost.power[i] = powerResultPy.toJs();
-        // powerResultPy.destroy();
+    const calculate_power_probability = pyscript.interpreter.globals.get("calculate_power_probability");
+    for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
+        const powerResultPy = calculate_power_probability(deviggedBoost.decimalOdds[i]);
+        deviggedBoost.power[i] = powerResultPy.toJs();
+        powerResultPy.destroy();
+    }
 
-    // const powerToAmericanPy = v_percent_to_american(deviggedBoost.power);
-    // deviggedBoost.powerAmerican = powerToAmericanPy.toJs();
-    // powerToAmericanPy.destroy();
+    const powerToAmericanPy = v_percent_to_american(deviggedBoost.power);
+    deviggedBoost.powerAmerican = powerToAmericanPy.toJs();
+    powerToAmericanPy.destroy();
 
-    // const powerProductPy = calculate_product(deviggedBoost.power);
-    // deviggedBoost.powerFV = powerProductPy;
-    // console.log(DecimalToAmerican(deviggedBoost.powerFV));
-    
+    const powerProductPy = calculate_product(deviggedBoost.power);
+    deviggedBoost.powerFV = powerProductPy;
+    console.log(DecimalToAmerican(deviggedBoost.powerFV));
+
+    // shin
+    const calculate_shin_probability = pyscript.interpreter.globals.get("calculate_shin_probability");
+    for (let i = 0; i < deviggedBoost.decimalOdds.length; i++) {
+        const shinResultPy = calculate_shin_probability(deviggedBoost.decimalOdds[i]);
+        deviggedBoost.shin[i] = shinResultPy.toJs();
+        shinResultPy.destroy();
+    }
+
+    const shinToAmericanPy = v_percent_to_american(deviggedBoost.shin);
+    deviggedBoost.shinAmerican = shinToAmericanPy.toJs();
+    shinToAmericanPy.destroy();
+
+    const shinProductPy = calculate_product(deviggedBoost.shin);
+    deviggedBoost.shinFV = shinProductPy;
+    console.log(DecimalToAmerican(deviggedBoost.shinFV));
+
     globalDeviggedBoosts.push(deviggedBoost);
     console.log(globalDeviggedBoosts);
 };
@@ -333,8 +355,6 @@ calculateButton.addEventListener("click", () => {
     CollectUserInputsAndUpdateObjects();
     CalculateDeviggedOdds();
 });
-
-
 
 // TODO create function for displaying calculations
 
