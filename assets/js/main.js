@@ -170,6 +170,13 @@ const CreateHtmlFromBoosts = (boosts, target) => {
 
         emptyDiv2.appendChild(finalGroupingDiv);
 
+        // create button
+        let button = document.createElement("button");
+        button.className = "calculateButton";
+        button.innerText = "Calculate";
+        button.addEventListener("click", () => { AllCalculations(); });
+        emptyDiv2.appendChild(button);
+
         mainDiv.appendChild(emptyDiv2);
 
         target.appendChild(mainDiv);
@@ -461,11 +468,6 @@ const AllCalculations = () => {
     ShowTestStrings();
 }
 
-const calculateButton = document.getElementById("calculateButton");
-calculateButton.addEventListener("click", () => {
-    AllCalculations();
-});
-
 // TODO create function for saving objects to file
 
 // TODO create function for loading objects from file
@@ -473,31 +475,22 @@ calculateButton.addEventListener("click", () => {
 
 
 //#region testing
-const TESTING = false;
+const TESTING = true;
 if (TESTING) {
-    const pythonHelloWorld = () => {
-        yello_world = pyscript.interpreter.globals.get("hello_world");
-        yello_world();
-    };
+    // TODO change these to create
+    const targetButtonHolder = document.getElementById("buttonHolderDiv");
 
-    const pythonDataTransferTest = (args) => {
-        data_test = pyscript.interpreter.globals.get("data_test");
-        data_test(args);
-    }
-
-    const helloWorldButton = document.getElementById('helloWorldButton');
-    helloWorldButton.addEventListener("click", () => {
-        console.log("helloWorldButton clicked...");
-        pythonHelloWorld();
-    });
-
-    const testTextAreaButton = document.getElementById("testTextAreaButton");
+    const testTextAreaButton = document.createElement("button");
+    testTextAreaButton.innerText = "Test TextArea Input";
+    targetButtonHolder.append(testTextAreaButton);
     testTextAreaButton.addEventListener("click", () => {
         console.log("testTextAreaButton clicked...");
         document.getElementById("gridBuilderTextArea").value = "2, 2, 2\n4\n3, 3,3, 3\n2,3";
     });
 
-    const testOddsButton = document.getElementById("testOddsButton");
+    const testOddsButton = document.createElement("button");
+    testOddsButton.innerText = "Test Odds Data";
+    targetButtonHolder.append(testOddsButton);
     testOddsButton.addEventListener("click", () => {
         console.log("testOddsButton clicked...");
         console.time("testOddsButton");
@@ -597,7 +590,9 @@ if (TESTING) {
         console.timeEnd("testOddsButton");
     });
 
-    const testCalculationsButton = document.getElementById("testCalculationsButton");
+    const testCalculationsButton = document.createElement("button");
+    testCalculationsButton.innerText = "Test Calculations";
+    targetButtonHolder.append(testCalculationsButton);
     testCalculationsButton.addEventListener("click", () => {
         console.log("testCalculationsButton clicked...");
         console.time("testCalculationsButton");

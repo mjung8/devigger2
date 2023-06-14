@@ -34,3 +34,7 @@
 [contentEditable=true]:empty:not(:focus):before {
     content: attr(data-text)
   }
+
+.calculateButton {
+    margin-left: 5px;
+}
