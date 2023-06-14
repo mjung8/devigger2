@@ -1,3 +1,7 @@
+html {
+    font-size: 0.9rem;
+}
+
 .eventContainer {
     padding-left: 1%;
     margin-bottom: 1%;
@@ -27,14 +31,28 @@
     padding: 2px 5px;
 }
 
-.legGrouping, .finalGrouping {
-    border: 1px solid gray;
-}
-
 [contentEditable=true]:empty:not(:focus):before {
     content: attr(data-text)
-  }
+}
 
 .calculateButton {
     margin-left: 5px;
+}
+
+.form-control {
+    display: inline-block;
+    width: auto;
+}
+
+input[type=number].form-control,
+input.bookInput {
+    width: 75px;
+}
+
+input.boostDescription {
+    min-width: 250px;
+}
+
+#helpLabel:hover {
+    cursor: pointer;
 }

@@ -88,6 +88,7 @@ const FindBoostById = (id) => {
     return globalBoosts.find(boost => boost.id === id);
 }
 
+
 const CreateHtmlFromBoosts = (boosts, target) => {
 
     if (!boosts || boosts.length <= 0) {
@@ -95,6 +96,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         return;
     }
 
+    document.getElementById("allContainer").innerHTML = "";
     for (let i = 0; i < boosts.length; i++) {
         const boost = boosts[i];
 
@@ -104,26 +106,26 @@ const CreateHtmlFromBoosts = (boosts, target) => {
 
         const emptyDiv1 = document.createElement("div");
 
-        const bookDiv = document.createElement("div");
-        bookDiv.className = "userInput fst-italic";
-        bookDiv.setAttribute("contenteditable", "true");
+        const bookInput = document.createElement("input");
+        bookInput.setAttribute("type", "text");
+        bookInput.className = "userInput fst-italic form-control form-control-sm bookInput";
         if (boost.book) {
-            bookDiv.textContent = boost.book;
+            bookInput.value = boost.book;
         } else {
-            bookDiv.setAttribute("data-text", "Book");
+            bookInput.setAttribute("placeholder", "Book");
         }
 
-        const boostDescDiv = document.createElement("div");
-        boostDescDiv.className = "userInput fst-italic";
-        boostDescDiv.setAttribute("contenteditable", "true");
+        const boostDescInput = document.createElement("input");
+        boostDescInput.setAttribute("type", "text");
+        boostDescInput.className = "userInput fst-italic form-control form-control-sm boostDescription";
         if (boost.book) {
-            boostDescDiv.textContent = boost.description;
+            boostDescInput.value = boost.description;
         } else {
-            boostDescDiv.setAttribute("data-text", "Boost Description...");
+            boostDescInput.setAttribute("placeholder", "Boost Description");
         }
 
-        emptyDiv1.appendChild(bookDiv);
-        emptyDiv1.appendChild(boostDescDiv);
+        emptyDiv1.appendChild(bookInput);
+        emptyDiv1.appendChild(boostDescInput);
 
         mainDiv.appendChild(emptyDiv1);
 
@@ -141,16 +143,16 @@ const CreateHtmlFromBoosts = (boosts, target) => {
 
             const sides = boost.legs[i];
             for (let j = 0; j < sides; j++) {
-                const userInputDiv = document.createElement("div");
-                userInputDiv.className = "userInput";
-                userInputDiv.setAttribute("contenteditable", "true");
+                const userInput = document.createElement("input");
+                userInput.setAttribute("type", "number");
+                userInput.className = "userInput form-control form-control-sm";
                 if (boost.odds[i]) {
                     if (boost.odds[i][j]) {
-                        userInputDiv.textContent = boost.odds[i][j].toString();
+                        userInput.value = boost.odds[i][j];
                     }
                 }
 
-                legGroupingDiv.appendChild(userInputDiv);
+                legGroupingDiv.appendChild(userInput);
             }
 
             emptyDiv2.appendChild(legGroupingDiv);
@@ -163,12 +165,11 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         finalLabelDiv.className = "fw-bold";
         finalLabelDiv.textContent = "Final"
 
-        const boostedUserInput = document.createElement("div");
-        boostedUserInput.className = "userInput";
-        boostedUserInput.setAttribute("contenteditable", "true");
-
+        const boostedUserInput = document.createElement("input");
+        boostedUserInput.setAttribute("type", "number");
+        boostedUserInput.className = "userInput form-control form-control-sm";
         if (boost.boosted > 0) {
-            boostedUserInput.textContent = boost.boosted.toString();
+            boostedUserInput.value = boost.boosted;
         }
 
         finalGroupingDiv.appendChild(finalLabelDiv);
@@ -178,7 +179,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
 
         // create button
         let button = document.createElement("button");
-        button.className = "calculateButton";
+        button.className = "calculateButton btn btn-primary btn-sm";
         button.innerText = "Calculate";
         button.addEventListener("click", () => { AllCalculations(); });
         emptyDiv2.appendChild(button);
@@ -210,8 +211,6 @@ const CreateBoostsFromTextArea = () => {
                 boosts.push(boost);
             }
         }
-        console.log(boosts.length);
-        console.log(boosts);
 
         return boosts;
     }
@@ -227,8 +226,8 @@ const CollectUserInputsAndUpdateObjects = () => {
 
         if (boost) {
 
-            boost.book = eventContainer.childNodes[0].childNodes[0].innerText;
-            boost.description = eventContainer.childNodes[0].childNodes[1].innerText;
+            boost.book = eventContainer.childNodes[0].childNodes[0].value;
+            boost.description = eventContainer.childNodes[0].childNodes[1].value;
 
             // populate odds
             const legGroupings = eventContainer.querySelectorAll(".legGrouping");
@@ -240,7 +239,7 @@ const CollectUserInputsAndUpdateObjects = () => {
 
                 let odds = [];
                 for (let k = 0; k < sides.length; k++) {
-                    odds.push(parseInt(sides[k].innerText));
+                    odds.push(parseInt(sides[k].value));
                 }
                 allOdds.push(odds);
             }
@@ -248,7 +247,7 @@ const CollectUserInputsAndUpdateObjects = () => {
             boost.odds = allOdds;
 
             // populate boosted (final) odds
-            const finalOddsValue = parseInt(eventContainer.querySelector("div.finalGrouping>div.userInput").innerText);
+            const finalOddsValue = parseInt(eventContainer.querySelector("div.finalGrouping>input.userInput").value);
             boost.boosted = finalOddsValue;
         }
         else {
@@ -277,6 +276,7 @@ const CalculateDeviggedOdds = () => {
 
     for (let i = 0; i < globalBoosts.length; i++) {
         const boost = globalBoosts[i];
+        console.log(boost);
 
         const deviggedBoost = new DeviggedBoost(boost.id, boost.odds, boost.boosted);
 
@@ -462,7 +462,6 @@ let globalDeviggedBoosts = [];
 
 const buildTableButton = document.getElementById("buildTableButton");
 buildTableButton.addEventListener("click", () => {
-    document.getElementById("allContainer").innerHTML = "";
     globalBoosts = CreateBoostsFromTextArea();
     CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
 });
@@ -497,13 +496,14 @@ fileLoaderInput.addEventListener("change", () => {
             catch (error) {
                 alert("Wrong type of file selected.");
             }
-            
+
         },
         false
     );
 
     if (file) {
         reader.readAsText(file);
+        fileLoaderInput.value = "";
     }
 });
 
@@ -532,11 +532,22 @@ fileSaverButton.addEventListener("click", () => {
     }
 });
 
+const HelpToggle = () => {
+    let x = document.getElementById("helpText");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+
+document.getElementById("helpLabel").addEventListener("click", () => {HelpToggle();});
+
 //#endregion
 
 
 //#region testing
-const TESTING = true;
+const TESTING = false;
 if (TESTING) {
     // TODO change these to create
     const targetButtonHolder = document.getElementById("buttonHolderDiv");
