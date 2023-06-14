@@ -89,6 +89,12 @@ const FindBoostById = (id) => {
 }
 
 const CreateHtmlFromBoosts = (boosts, target) => {
+
+    if (!boosts || boosts.length <= 0) {
+        alert("No data to build table!");
+        return;
+    }
+
     for (let i = 0; i < boosts.length; i++) {
         const boost = boosts[i];
 
@@ -463,13 +469,20 @@ buildTableButton.addEventListener("click", () => {
 
 const AllCalculations = () => {
     CollectUserInputsAndUpdateObjects();
-    CalculateDeviggedOdds();
+    try {
+        CalculateDeviggedOdds();
+    }
+    catch (error) {
+        alert("Check user inputs and try again. If it keeps failing, save the file and ask admin for help.");
+    }
+
     CalculateAndDisplayEV();
     ShowTestStrings();
 }
 
 const fileLoaderInput = document.getElementById("fileLoaderInput");
 fileLoaderInput.addEventListener("change", () => {
+    
     const [file] = fileLoaderInput.files;
     const reader = new FileReader();
 
@@ -478,7 +491,13 @@ fileLoaderInput.addEventListener("change", () => {
         () => {
             document.getElementById("allContainer").innerHTML = "";
             globalBoosts = JSON.parse(reader.result);
-            CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
+            try {
+                CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
+            }
+            catch (error) {
+                alert("Wrong type of file selected.");
+            }
+            
         },
         false
     );
@@ -517,7 +536,7 @@ fileSaverButton.addEventListener("click", () => {
 
 
 //#region testing
-const TESTING = false;
+const TESTING = true;
 if (TESTING) {
     // TODO change these to create
     const targetButtonHolder = document.getElementById("buttonHolderDiv");
