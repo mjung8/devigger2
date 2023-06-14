@@ -468,14 +468,56 @@ const AllCalculations = () => {
     ShowTestStrings();
 }
 
-// TODO create function for saving objects to file
+const fileLoaderInput = document.getElementById("fileLoaderInput");
+fileLoaderInput.addEventListener("change", () => {
+    const [file] = fileLoaderInput.files;
+    const reader = new FileReader();
 
-// TODO create function for loading objects from file
+    reader.addEventListener(
+        "load",
+        () => {
+            document.getElementById("allContainer").innerHTML = "";
+            globalBoosts = JSON.parse(reader.result);
+            CreateHtmlFromBoosts(globalBoosts, document.getElementById("allContainer"));
+        },
+        false
+    );
+
+    if (file) {
+        reader.readAsText(file);
+    }
+});
+
+const fileSaverButton = document.getElementById("saveFileButton");
+fileSaverButton.addEventListener("click", () => {
+    if (globalBoosts.length <= 0) {
+        alert("No data to save!")
+    } else {
+
+        let filename = document.getElementById("fileNameInput").value;
+        if (!filename) filename = "boosts.json";
+
+        let blob = new Blob([JSON.stringify(globalBoosts, undefined, 4)], { type: 'text/json' });
+        let a = document.createElement('a');
+
+        a.download = filename;
+        if (!filename.endsWith(".json")) a.download = filename + ".json";
+        a.href = window.URL.createObjectURL(blob)
+        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+
+        document.body.append(a);
+        a.click();
+
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(a.href);
+    }
+});
+
 //#endregion
 
 
 //#region testing
-const TESTING = true;
+const TESTING = false;
 if (TESTING) {
     // TODO change these to create
     const targetButtonHolder = document.getElementById("buttonHolderDiv");
