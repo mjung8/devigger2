@@ -10,7 +10,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
-    <!-- <script defer src="https://pyscript.net/latest/pyscript.js"></script> -->
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <script defer src="assets/js/main.js"></script>
 </head>
 
@@ -131,58 +131,155 @@
 
     </py-script>
     <main>
-        <div class="container-fluid">
-            <h2>Ilobemoney's Sportsbook Probability Calculator</h2>
+        <div class="container-fluid mt-2">
+            <h2>Sportsbook Probability Calculator</h2>
             <br />
             <div class="row">
                 <div class="col">
                     <label for="bankroll">Bankroll:
-                        <input type="number" id="bankroll" name="bankroll" value="1000">
+                        <input class="form-control form-control-sm" type="number" id="bankroll" name="bankroll" value="1000">
                     </label>
                     <label for="kelly">Kelly:
-                        <input type="number" id="kelly" name="kelly" value="0.25">
+                        <input class="form-control form-control-sm" type="number" id="kelly" name="kelly" value="0.25">
                     </label>
                 </div>
             </div>
     
             <br />
     
-            <div class="row">
-                <div class="col">
+            <div>
+                <div>
                     <div>
-                        <textarea id="gridBuilderTextArea" rows="5" cols="50"></textarea>
+                        <textarea class="form-control form-control-sm" id="gridBuilderTextArea" rows="5" cols="50"></textarea>
+                        <label id="helpLabel" title="Click me for help">❔</label>
                     </div>
+                    <p id="helpText"style="display:none;"><strong>How to use:</strong><br />
+                        Enter the number of sides, separating legs with a comma. Enter each boost on a new line.<br />
+                        Ex#1: 3-leg MLB 2-way (NYY/TOR/BAL): 2, 2, 2<br />
+                        Ex#2: 3-leg soccer 3-way (Barca/Bayern/Inter): 3, 3, 3<br />
+                        Ex#3: 1-leg prop 4-way (): 4<br />
+                        Ex#4: 1-leg something 2-way (): 2<br />
+                        <br />
+                        2, 2, 2<br />
+                        3, 3, 3<br />
+                        4<br />
+                        2<br />
+                        <br />
+                        Then click the [Build Table] button. A grid of inputs will be created for data entry.<br />
+                        Then click any [Calculate] button to display results.
+                    </p>
                 </div>
             </div>
             
-            <br />
             <div id="buttonHolderDiv">
                 <div>
-                    <button id="buildTableButton">Build Table</button>
+                    <button type="button" id="buildTableButton" class="btn btn-primary btn-sm">Build Table</button>
                 </div>
                 <br />
                 <div>
                     <span>File Loader: select a .json file to load and automatically create the table</span><br />
-                    <input type="file" id="fileLoaderInput" /><br />
+                    <input class="form-control form-control-sm" type="file" id="fileLoaderInput" /><br />
                 </div>
                 <br />
                 <div>
                     <span>File Saver: enter a file name to save data for later (as .json)</span><br />
-                    <input type="text" id="fileNameInput" />
-                    <button id="saveFileButton">Save File</button>
+                    <input type="text" id="fileNameInput" class="form-control form-control-sm" />
+                    <button type="button" id="saveFileButton" class="btn btn-secondary btn-sm">Save File</button>
                 </div>
-                <br />
             </div>
-            <br />
-            <!--
-            <div>
-                <button id="calculateButton">Calculate</button>
-            </div>
-            -->
         </div>
     
         <br />
         <div id="allContainer">
+            <!--<div class="eventContainer" id="061220231">
+                <div>
+                    <input type="text" class="userInput fst-italic form-control form-control-sm bookInput" placeholder="Book"/>
+                    <input type="text" class="userInput fst-italic form-control form-control-sm boostDescription" placeholder="Boost Description"/>
+                </div>
+                <div>
+                    <div class="fw-bold ms-2" style="width:75px;">Odds</div>
+                    <div class="legGrouping">
+                        <input type="number" class="userInput form-control form-control-sm" />
+                        <input type="number" class="userInput form-control form-control-sm" />
+                        <input type="number" class="userInput form-control form-control-sm" />
+                    </div>
+                    <div class="legGrouping">
+                        <input type="number" class="userInput form-control form-control-sm" />
+                        <input type="number" class="userInput form-control form-control-sm" />
+                        <input type="number" class="userInput form-control form-control-sm" />
+                    </div>
+                    <div class="legGrouping">
+                        <input type="number" class="userInput form-control form-control-sm" />
+                        <input type="number" class="userInput form-control form-control-sm" />
+                        <input type="number" class="userInput form-control form-control-sm" />
+                    </div>
+                    <div class="finalGrouping">
+                        <div class="fw-bold">Final</div>
+                        <input type="number" class="userInput form-control form-control-sm" />
+                    </div><button class="calculateButton">Calculate</button>
+                </div>
+            </div>
+            <div class="eventContainer" id="061220232">
+                <div>
+                    <div class="userInput fst-italic" contenteditable="true">NSB</div>
+                    <div class="userInput fst-italic" contenteditable="true">Berrios/Valdez 6+ Ks vs TSB</div>
+                </div>
+                <div>
+                    <div class="fw-bold ms-2">Odds</div>
+                    <div class="legGrouping">
+                        <div class="userInput" contenteditable="true">423</div>
+                        <div class="userInput" contenteditable="true">336</div>
+                        <div class="userInput" contenteditable="true">225</div>
+                        <div class="userInput" contenteditable="true">173</div>
+                    </div>
+                    <div class="finalGrouping">
+                        <div class="fw-bold">Final</div>
+                        <div class="userInput" contenteditable="true">530</div>
+                    </div><button class="calculateButton">Calculate</button>
+                </div>
+            </div>
+            <div class="eventContainer" id="061220233">
+                <div>
+                    <div class="userInput fst-italic" contenteditable="true">B99</div>
+                    <div class="userInput fst-italic" contenteditable="true">HOU, NYM, TOR all to win!</div>
+                </div>
+                <div>
+                    <div class="fw-bold ms-2">Odds</div>
+                    <div class="legGrouping">
+                        <div class="userInput" contenteditable="true">109</div>
+                        <div class="userInput" contenteditable="true">-117</div>
+                    </div>
+                    <div class="legGrouping">
+                        <div class="userInput" contenteditable="true">117</div>
+                        <div class="userInput" contenteditable="true">-127</div>
+                    </div>
+                    <div class="legGrouping">
+                        <div class="userInput" contenteditable="true">-195</div>
+                        <div class="userInput" contenteditable="true">178</div>
+                    </div>
+                    <div class="finalGrouping">
+                        <div class="fw-bold">Final</div>
+                        <div class="userInput" contenteditable="true">685</div>
+                    </div><button class="calculateButton">Calculate</button>
+                </div>
+            </div>
+            <div class="eventContainer" id="061220234">
+                <div>
+                    <div class="userInput fst-italic" contenteditable="true">B99</div>
+                    <div class="userInput fst-italic" contenteditable="true">Murray 4+ 3s vs FD/TSB/BR</div>
+                </div>
+                <div>
+                    <div class="fw-bold ms-2">Odds</div>
+                    <div class="legGrouping">
+                        <div class="userInput" contenteditable="true">141</div>
+                        <div class="userInput" contenteditable="true">-191</div>
+                    </div>
+                    <div class="finalGrouping">
+                        <div class="fw-bold">Final</div>
+                        <div class="userInput" contenteditable="true">185</div>
+                    </div><button class="calculateButton">Calculate</button>
+                </div>
+            </div>-->
         </div>
         <br />
 
