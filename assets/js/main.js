@@ -512,7 +512,7 @@ fileSaverButton.addEventListener("click", () => {
     if (globalBoosts.length <= 0) {
         alert("No data to save!")
     } else {
-
+        CollectUserInputsAndUpdateObjects();
         let filename = document.getElementById("fileNameInput").value;
         if (!filename) filename = "boosts.json";
 
