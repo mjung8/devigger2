@@ -1,5 +1,7 @@
 # Sports Probability Calculator
 
+This project is developed in HTML, JavaScript, and Python using [PyScript](https://pyscript.net/).
+
 How to use:
 
 Enter the number of sides, separating legs with a comma. Enter each boost on a new line.
