@@ -378,7 +378,7 @@ const CalculateAndDisplayEV = () => {
         DevigMethodResultsDisplay(deviggedBoost, "additive", "addi");
         DevigMethodResultsDisplay(deviggedBoost, "power", "power");
         DevigMethodResultsDisplay(deviggedBoost, "shin", "shin");
-
+        WorstCaseResultsDisplay(deviggedBoost);
     }
 
     console.timeEnd("CalculateAndDisplayEV");
@@ -584,6 +584,127 @@ const CalculateEVAndKellyFromBoost = (deviggedBoost, methodNameShort) => {
     console.log(results);
 
     return results;
+}
+
+
+const WorstCaseResultsDisplay = (deviggedBoost) => {
+    console.time("WorstCaseResultsDisplay");
+
+    let resultsContainer = document.createElement("div");
+    resultsContainer.classList.add("resultsContainer");
+
+    // Create the inner elements for resultsContainer
+    let methodNameDiv = document.createElement("div");
+    methodNameDiv.classList.add("fw-bold", "mx-2", "methodName");
+    methodNameDiv.textContent = "Worst Case";
+
+    let grouping1 = document.createElement("div");
+    grouping1.classList.add("resultsGrouping");
+
+    // for each legGrouping
+    const count = deviggedBoost.originalOdds.length;
+    let juiceSum = 0;
+    let minDeviggedList = [];
+    for (let i = 0; i < count; i++) {
+
+        let minDevigged = deviggedBoost.multiplicative[i][0];
+        let minDeviggedAmerican = deviggedBoost.multiAmerican[i][0];
+
+        if (deviggedBoost.additive[i][0] < minDevigged) {
+            minDevigged = deviggedBoost.additive[i][0];
+            minDeviggedAmerican = deviggedBoost.addiAmerican[i][0];
+        }
+
+        if (deviggedBoost.power[i][0] < minDevigged) {
+            minDevigged = deviggedBoost.power[i][0];
+            minDeviggedAmerican = deviggedBoost.powerAmerican[i][0];
+        }
+
+        if (deviggedBoost.shin[i][0] < minDevigged) {
+            minDevigged = deviggedBoost.shin[i][0];
+            minDeviggedAmerican = deviggedBoost.shinAmerican[i][0];
+        }
+
+        let fvText1 = document.createElement("div");
+        fvText1.classList.add("resultsFVText");
+        fvText1.textContent = `${(minDeviggedAmerican > 0) ? "+" : ""}${Math.round(minDeviggedAmerican)} (${(minDevigged * 100).toFixed(1)})%`;
+
+        let mjText1 = document.createElement("div");
+        mjText1.classList.add("resultsMJText");
+        const juice = ((deviggedBoost.juice[i] - 1) * 100);
+        mjText1.textContent = `${juice.toFixed(1)}%`;
+
+        // Append the inner elements to grouping1
+        grouping1.appendChild(fvText1);
+        grouping1.appendChild(mjText1);
+
+        // get the juiceSum while we're here
+        juiceSum += parseFloat(juice);
+
+        // collect minimums
+        minDeviggedList.push(minDevigged);
+    }
+
+    let finalResultsGrouping = document.createElement("div");
+    finalResultsGrouping.classList.add("finalResultsGrouping");
+
+    console.log(minDeviggedList);
+    let finalFV = minDeviggedList.reduce((acc, curr) => acc * curr, 1);
+    let finalFVAmerican = Math.round(PercentToAmerican(finalFV));
+
+    let fvText = document.createElement("div");
+    fvText.classList.add("resultsFVText");
+    fvText.textContent = `${(finalFVAmerican > 0) ? "+" : ""}${finalFVAmerican} (${(finalFV * 100).toFixed(1)}%)`;
+
+    let tmjText = document.createElement("div");
+    tmjText.classList.add("resultsTMJText");
+    tmjText.textContent = `${juiceSum.toFixed(1)}%`;
+
+    let evkwValues = CalculateEVAndKelly(deviggedBoost.decimalBoosted, finalFV);
+    let EV = evkwValues[0];
+    let targetKellyDollars = evkwValues[1];
+    let fullKelly = evkwValues[2];
+    let halfKelly = evkwValues[3];
+    let quarterKelly = evkwValues[4];
+
+    let evkwText1 = document.createElement("div");
+    evkwText1.classList.add("resultsEVKWText");
+    evkwText1.textContent = `${(EV > 0) ? "✅" : "❌"}${(EV * 100).toFixed(1)}%`;
+
+    let evkwText2 = document.createElement("div");
+    evkwText2.classList.add("resultsEVKWText");
+    evkwText2.textContent = `$${targetKellyDollars.toFixed(2)}`;
+
+    let evkwText3 = document.createElement("div");
+    evkwText3.classList.add("resultsEVKWText");
+    evkwText3.textContent = `${fullKelly.toFixed(2)}u`;
+
+    let evkwText4 = document.createElement("div");
+    evkwText4.classList.add("resultsEVKWText");
+    evkwText4.textContent = `${halfKelly.toFixed(2)}u`;
+
+    let evkwText5 = document.createElement("div");
+    evkwText5.classList.add("resultsEVKWText");
+    evkwText5.textContent = `${quarterKelly.toFixed(2)}u`;
+
+    // Append the inner elements to finalResultsGrouping
+    finalResultsGrouping.appendChild(fvText);
+    finalResultsGrouping.appendChild(tmjText);
+    finalResultsGrouping.appendChild(evkwText1);
+    finalResultsGrouping.appendChild(evkwText2);
+    finalResultsGrouping.appendChild(evkwText3);
+    finalResultsGrouping.appendChild(evkwText4);
+    finalResultsGrouping.appendChild(evkwText5);
+
+    // Append the inner elements to resultsContainer
+    resultsContainer.appendChild(methodNameDiv);
+    resultsContainer.appendChild(grouping1);
+    resultsContainer.appendChild(finalResultsGrouping);
+
+    const target = document.getElementById(deviggedBoost.betId);
+    target.append(resultsContainer);
+
+    console.timeEnd("WorstCaseResultsDisplay");
 }
 
 const CalculateEVAndKelly = (boostedDecimal, FV) => {
@@ -1371,11 +1492,17 @@ if (TESTING) {
         
         testArray = [0.15427030008238574, 5.933473080091758, 2.3733892320367036, 1.1866946160183518, 0.5933473080091759];
         resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "power");
-        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "power pElement match");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "power resultsArray match");
 
         testArray = [0.14221042949467866, 5.4696319036414875, 2.187852761456595, 1.0939263807282975, 0.5469631903641488];
         resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "shin");
-        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "shin pElement match");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "shin resultsArray match");
+
+        let minDeviggedList = [0.7744005214323721, 0.393158105563438, 0.48853027473993066];
+        let finalFV = minDeviggedList.reduce((acc, curr) => acc * curr, 1);
+        testArray = [0.1155412047309613, 4.443892489652358, 1.777556995860943, 0.8887784979304715, 0.44438924896523574];
+        resultsArray = CalculateEVAndKelly(globalDeviggedBoosts[0].decimalBoosted, finalFV);
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "worst case resultsArray match");      
 
         console.timeEnd("testCalculationsButton");
     });
