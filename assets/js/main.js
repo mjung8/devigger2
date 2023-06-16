@@ -821,8 +821,31 @@ const HelpToggle = () => {
         x.style.display = "none";
     }
 }
-
 document.getElementById("helpLabel").addEventListener("click", () => { HelpToggle(); });
+
+const SaveAndLoadPreferences = () => {
+    // Retrieve stored values from localStorage (if any)
+    let storedBankroll = localStorage.getItem("bankroll");
+    let storedKelly = localStorage.getItem("kelly");
+
+    // Get the input elements
+    let bankrollInput = document.getElementById("bankroll");
+    let kellyInput = document.getElementById("kelly");
+
+    // Set the initial values or the stored values
+    bankrollInput.value = storedBankroll || bankrollInput.value;
+    kellyInput.value = storedKelly || kellyInput.value;
+
+    // Add event listeners to save the input values on change
+    bankrollInput.addEventListener("change", function () {
+        localStorage.setItem("bankroll", bankrollInput.value);
+    });
+
+    kellyInput.addEventListener("change", function () {
+        localStorage.setItem("kelly", kellyInput.value);
+    });
+}
+SaveAndLoadPreferences();
 
 //#endregion
 
@@ -1485,11 +1508,11 @@ if (TESTING) {
         let testArray = [0.1155412047309613, 4.443892489652358, 1.777556995860943, 0.8887784979304715, 0.44438924896523574];
         let resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "multi");
         assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "multi resultsArray match");
-        
+
         testArray = [0.15137746324501256, 5.8222101248081755, 2.3288840499232704, 1.1644420249616352, 0.5822210124808176];
         resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "addi");
-        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4],"addi resultsArray match");
-        
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "addi resultsArray match");
+
         testArray = [0.15427030008238574, 5.933473080091758, 2.3733892320367036, 1.1866946160183518, 0.5933473080091759];
         resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "power");
         assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "power resultsArray match");
@@ -1502,7 +1525,7 @@ if (TESTING) {
         let finalFV = minDeviggedList.reduce((acc, curr) => acc * curr, 1);
         testArray = [0.1155412047309613, 4.443892489652358, 1.777556995860943, 0.8887784979304715, 0.44438924896523574];
         resultsArray = CalculateEVAndKelly(globalDeviggedBoosts[0].decimalBoosted, finalFV);
-        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "worst case resultsArray match");      
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "worst case resultsArray match");
 
         console.timeEnd("testCalculationsButton");
     });
