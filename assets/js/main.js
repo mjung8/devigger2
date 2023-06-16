@@ -727,10 +727,14 @@ const ShowTestStrings = () => {
         const target2 = target.children[0];
         let targetPs = target2.querySelectorAll("span");
         targetPs.forEach(p => p.remove());
-        let span = document.createElement("span");
-        span.className = "text-body-tertiary";
-        span.innerText = boost.testString;
-        target2.append(span);
+        let div = document.createElement("div");
+        div.type = "text";
+        div.className = "text-body-tertiary testStrings";
+        div.innerText = boost.testString;
+        div.addEventListener("click", (event) => {
+            navigator.clipboard.writeText(event.target.innerText);
+        });
+        target2.append(div);
     }
 }
 

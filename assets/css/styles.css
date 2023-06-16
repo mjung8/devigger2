@@ -42,7 +42,7 @@ input.boostDescription {
   min-width: 250px;
 }
 
-#helpLabel:hover {
+#helpLabel:hover, .testStrings:hover {
   cursor: pointer;
 }
 
@@ -78,4 +78,8 @@ div.resultsEVKWText, div.resultsEVKWHeading {
   min-width: 45px;
   font-size: 0.8rem;
   margin-right: 10px;
+}
+
+div.testStrings {
+  border: none;
 }/*# sourceMappingURL=styles.css.map */
