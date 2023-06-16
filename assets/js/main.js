@@ -378,6 +378,7 @@ const CalculateAndDisplayEV = () => {
         DevigMethodResultsDisplay(deviggedBoost, "additive", "addi");
         DevigMethodResultsDisplay(deviggedBoost, "power", "power");
         DevigMethodResultsDisplay(deviggedBoost, "shin", "shin");
+
     }
 
     console.timeEnd("CalculateAndDisplayEV");
@@ -526,7 +527,7 @@ const DisplayResults = (deviggedBoost, methodName, methodNameShort) => {
     tmjText.classList.add("resultsTMJText");
     tmjText.textContent = `${juiceSum.toFixed(1)}%`;
 
-    let evkwValues = CalculateEVAndKelly(deviggedBoost, methodNameShort);
+    let evkwValues = CalculateEVAndKellyFromBoost(deviggedBoost, methodNameShort);
     let EV = evkwValues[0];
     let targetKellyDollars = evkwValues[1];
     let fullKelly = evkwValues[2];
@@ -571,10 +572,23 @@ const DisplayResults = (deviggedBoost, methodName, methodNameShort) => {
 }
 
 
-const CalculateEVAndKelly = (deviggedBoost, methodNameShort) => {
+const CalculateEVAndKellyFromBoost = (deviggedBoost, methodNameShort) => {
     const methodFV = deviggedBoost[`${methodNameShort}FV`];
     const EV = (deviggedBoost.decimalBoosted - 1) * methodFV - (1 - methodFV);
     const fullKelly = (EV / (deviggedBoost.decimalBoosted - 1)) * 100;
+    const halfKelly = fullKelly / 2;
+    const quarterKelly = fullKelly / 4;
+    const targetKellyDollars = fullKelly / 100 * document.getElementById("kelly").value * document.getElementById("bankroll").value;
+
+    let results = [EV, targetKellyDollars, fullKelly, halfKelly, quarterKelly];
+    console.log(results);
+
+    return results;
+}
+
+const CalculateEVAndKelly = (boostedDecimal, FV) => {
+    const EV = (boostedDecimal - 1) * FV - (1 - FV);
+    const fullKelly = (EV / (boostedDecimal - 1)) * 100;
     const halfKelly = fullKelly / 2;
     const quarterKelly = fullKelly / 4;
     const targetKellyDollars = fullKelly / 100 * document.getElementById("kelly").value * document.getElementById("bankroll").value;
@@ -695,7 +709,6 @@ document.getElementById("helpLabel").addEventListener("click", () => { HelpToggl
 //#region testing
 const TESTING = false;
 if (TESTING) {
-    // TODO change these to create
     const targetButtonHolder = document.getElementById("buttonHolderDiv");
 
     const testTextAreaButton = document.createElement("button");
@@ -1349,17 +1362,20 @@ if (TESTING) {
         assert(globalDeviggedBoosts[0].shinFV === temp[0].shinFV, "shinFV match");
 
         let testArray = [0.1155412047309613, 4.443892489652358, 1.777556995860943, 0.8887784979304715, 0.44438924896523574];
-        let resultsArray = CalculateEVAndKelly(globalDeviggedBoosts[0], "multi");
-        assert(testPElement.innerHTML === pElement.innerHTML, "multi pElement match");
-        testPElement.innerHTML = "<strong>Additive:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -378 (79.1 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +103 (49.2 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +551 (15.4 %)<br>Summary; EV% = 15.1 %, Kelly Wager = $5.82 (Full=2.33u, 1/2=1.16, 1/4=0.58u) ✅";
-        pElement = DisplayResults(globalDeviggedBoosts[0], "additive", "addi");
-        assert(testPElement.innerHTML === pElement.innerHTML, "addi pElement match");
-        testPElement.innerHTML = "<strong>Power:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -383 (79.3 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +103 (49.2 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +550 (15.4 %)<br>Summary; EV% = 15.4 %, Kelly Wager = $5.93 (Full=2.37u, 1/2=1.19, 1/4=0.59u) ✅";
-        pElement = DisplayResults(globalDeviggedBoosts[0], "power", "power");
-        assert(testPElement.innerHTML === pElement.innerHTML, "power pElement match");
-        testPElement.innerHTML = "<strong>Shin:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -369 (78.7 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +104 (49.1 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +557 (15.2 %)<br>Summary; EV% = 14.2 %, Kelly Wager = $5.47 (Full=2.19u, 1/2=1.09, 1/4=0.55u) ✅";
-        pElement = DisplayResults(globalDeviggedBoosts[0], "shin", "shin");
-        assert(testPElement.innerHTML === pElement.innerHTML, "shin pElement match");
+        let resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "multi");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "multi resultsArray match");
+        
+        testArray = [0.15137746324501256, 5.8222101248081755, 2.3288840499232704, 1.1644420249616352, 0.5822210124808176];
+        resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "addi");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4],"addi resultsArray match");
+        
+        testArray = [0.15427030008238574, 5.933473080091758, 2.3733892320367036, 1.1866946160183518, 0.5933473080091759];
+        resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "power");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "power pElement match");
+
+        testArray = [0.14221042949467866, 5.4696319036414875, 2.187852761456595, 1.0939263807282975, 0.5469631903641488];
+        resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "shin");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "shin pElement match");
 
         console.timeEnd("testCalculationsButton");
     });
