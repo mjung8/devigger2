@@ -132,7 +132,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         const emptyDiv2 = document.createElement("div");
 
         const oddsLabelDiv = document.createElement("div");
-        oddsLabelDiv.className = "fw-bold mx-2";
+        oddsLabelDiv.className = "fw-bold mx-2 oddsLabel";
         oddsLabelDiv.textContent = "Odds"
 
         emptyDiv2.appendChild(oddsLabelDiv);
@@ -357,88 +357,368 @@ const CalculateDeviggedOdds = () => {
 const CalculateAndDisplayEV = () => {
     console.time("CalculateAndDisplayEV");
 
-    // TODO create function for displaying calculations
+    // TODO separate the math from the presentation...
     for (let i = 0; i < globalDeviggedBoosts.length; i++) {
         const deviggedBoost = globalDeviggedBoosts[i];
 
         const target = document.getElementById(deviggedBoost.betId);
-        let targetPs = target.querySelectorAll("p");
-        targetPs.forEach(p => p.remove());
+        let targetDivs = target.querySelectorAll("div.resultsContainer");
+        targetDivs.forEach(x => x.remove());
         // for each deviggedBoost, target its id element, for each type of devig, create a <p>, change its html
         // using info from each deviggedBoost, append to target
         // methods...multiplicative multiAmerican multiFV
         //           additive addiAmerican addiFV
         //           power powerAmerican powerFV
         //           shin shinAmerican shinFV
-
-        DevigMethodCalcAndDisplay(deviggedBoost, "multiplicative", "multi");
-        DevigMethodCalcAndDisplay(deviggedBoost, "additive", "addi");
-        DevigMethodCalcAndDisplay(deviggedBoost, "power", "power");
-        DevigMethodCalcAndDisplay(deviggedBoost, "shin", "shin");
+        //create header row
+        let headerRow = ResultsHeaderRowDisplay(deviggedBoost.originalOdds.length);
+        target.append(headerRow);
+        //then each of these creates results row
+        DevigMethodResultsDisplay(deviggedBoost, "multiplicative", "multi");
+        DevigMethodResultsDisplay(deviggedBoost, "additive", "addi");
+        DevigMethodResultsDisplay(deviggedBoost, "power", "power");
+        DevigMethodResultsDisplay(deviggedBoost, "shin", "shin");
+        WorstCaseResultsDisplay(deviggedBoost);
     }
 
     console.timeEnd("CalculateAndDisplayEV");
 }
 
+const ResultsHeaderRowDisplay = (count) => {
+    // Create the outer container element
+    let resultsContainer = document.createElement("div");
+    resultsContainer.classList.add("resultsContainer");
 
-const EVAndKellyCalcAndDisplay = (deviggedBoost, EV) => {
+    let methodName = document.createElement("div");
+    methodName.classList.add("fw-bold", "mx-2", "methodName");
+    methodName.textContent = "Devigged";
+
+    // Create the first inner grouping element
+    let grouping1 = document.createElement("div");
+    grouping1.classList.add("resultsGrouping");
+
+    for (let i = 0; i < count; i++) {
+        // Create the inner elements for grouping1
+        let fvHeading1 = document.createElement("div");
+        fvHeading1.classList.add("resultsFVHeading");
+        fvHeading1.textContent = "Fair Value";
+
+        let mjHeading1 = document.createElement("div");
+        mjHeading1.classList.add("resultsMJHeading");
+        mjHeading1.textContent = "Juice";
+
+        // Append the inner elements to grouping1
+        grouping1.appendChild(fvHeading1);
+        grouping1.appendChild(mjHeading1);
+    }
+    // Create the final results grouping element
+    let finalResultsGrouping = document.createElement("div");
+    finalResultsGrouping.classList.add("finalResultsGrouping");
+
+    // Create the inner elements for finalResultsGrouping
+    let totalFVHeading = document.createElement("div");
+    totalFVHeading.classList.add("resultsFVHeading");
+    totalFVHeading.textContent = "Total Fair Value";
+
+    let totalMJHeading = document.createElement("div");
+    totalMJHeading.classList.add("resultsMJHeading");
+    totalMJHeading.textContent = "Total Juice";
+
+    // Create the elements
+    let evkwHeading1 = document.createElement("div");
+    evkwHeading1.classList.add("resultsEVKWHeading");
+    evkwHeading1.textContent = "EV";
+
+    let evkwHeading2 = document.createElement("div");
+    evkwHeading2.classList.add("resultsEVKWHeading");
+    evkwHeading2.textContent = "KW";
+
+    let evkwHeading3 = document.createElement("div");
+    evkwHeading3.classList.add("resultsEVKWHeading");
+    evkwHeading3.textContent = "Full";
+
+    let evkwHeading4 = document.createElement("div");
+    evkwHeading4.classList.add("resultsEVKWHeading");
+    evkwHeading4.textContent = "1/2";
+
+    let evkwHeading5 = document.createElement("div");
+    evkwHeading5.classList.add("resultsEVKWHeading");
+    evkwHeading5.textContent = "1/4";
+
+    // Append the inner elements to finalResultsGrouping
+    finalResultsGrouping.appendChild(totalFVHeading);
+    finalResultsGrouping.appendChild(totalMJHeading);
+    finalResultsGrouping.appendChild(evkwHeading1);
+    finalResultsGrouping.appendChild(evkwHeading1);
+    finalResultsGrouping.appendChild(evkwHeading2);
+    finalResultsGrouping.appendChild(evkwHeading3);
+    finalResultsGrouping.appendChild(evkwHeading4);
+    finalResultsGrouping.appendChild(evkwHeading5);
+
+    // Append all the elements to the resultsContainer
+    resultsContainer.appendChild(methodName);
+    resultsContainer.appendChild(grouping1);
+    resultsContainer.appendChild(finalResultsGrouping);
+
+    return resultsContainer;
+}
+
+const DevigMethodResultsDisplay = (deviggedBoost, methodName, methodNameShort) => {
+    console.time(`${methodName}ResultsDisplay`);
+
+    const div = DisplayResults(deviggedBoost, methodName, methodNameShort);
+
+    const target = document.getElementById(deviggedBoost.betId);
+    target.append(div);
+
+    console.timeEnd(`${methodName}ResultsDisplay`);
+}
+
+
+const DisplayResults = (deviggedBoost, methodName, methodNameShort) => {
+    // what am i really calculating here?
+    // Total Juice, EV, and Kelly
+    // the rest is presentation (converting percent to american)
+
+    let resultsContainer = document.createElement("div");
+    resultsContainer.classList.add("resultsContainer");
+
+    // Create the inner elements for resultsContainer
+    let methodNameDiv = document.createElement("div");
+    methodNameDiv.classList.add("fw-bold", "mx-2", "methodName");
+    methodNameDiv.textContent = Capitlize(methodName);
+
+    let grouping1 = document.createElement("div");
+    grouping1.classList.add("resultsGrouping");
+
+    // for each legGrouping
+    const count = deviggedBoost.originalOdds.length;
+    let juiceSum = 0;
+    for (let i = 0; i < count; i++) {
+        let fvText1 = document.createElement("div");
+        fvText1.classList.add("resultsFVText");
+        const american = deviggedBoost[`${methodNameShort}American`][i][0];
+        fvText1.textContent = `${(american > 0) ? "+" : ""}${Math.round(american)} (${(deviggedBoost[methodName][i][0] * 100).toFixed(1)})%`;
+
+        let mjText1 = document.createElement("div");
+        mjText1.classList.add("resultsMJText");
+        const juice = ((deviggedBoost.juice[i] - 1) * 100);
+        mjText1.textContent = `${juice.toFixed(1)}%`;
+
+        // Append the inner elements to grouping1
+        grouping1.appendChild(fvText1);
+        grouping1.appendChild(mjText1);
+
+        // get the juiceSum while we're here
+        juiceSum += parseFloat(juice);
+    }
+
+    let finalResultsGrouping = document.createElement("div");
+    finalResultsGrouping.classList.add("finalResultsGrouping");
+
+    const methodFV = deviggedBoost[`${methodNameShort}FV`];
+    const methodFVAmerican = Math.round(PercentToAmerican(methodFV));
+
+    let fvText = document.createElement("div");
+    fvText.classList.add("resultsFVText");
+    fvText.textContent = `${(methodFVAmerican > 0) ? "+" : ""}${methodFVAmerican} (${(methodFV * 100).toFixed(1)}%)`;
+
+    let tmjText = document.createElement("div");
+    tmjText.classList.add("resultsTMJText");
+    tmjText.textContent = `${juiceSum.toFixed(1)}%`;
+
+    let evkwValues = CalculateEVAndKellyFromBoost(deviggedBoost, methodNameShort);
+    let EV = evkwValues[0];
+    let targetKellyDollars = evkwValues[1];
+    let fullKelly = evkwValues[2];
+    let halfKelly = evkwValues[3];
+    let quarterKelly = evkwValues[4];
+
+    let evkwText1 = document.createElement("div");
+    evkwText1.classList.add("resultsEVKWText");
+    evkwText1.textContent = `${(EV > 0) ? "✅" : "❌"}${(EV * 100).toFixed(1)}%`;
+
+    let evkwText2 = document.createElement("div");
+    evkwText2.classList.add("resultsEVKWText");
+    evkwText2.textContent = `$${targetKellyDollars.toFixed(2)}`;
+
+    let evkwText3 = document.createElement("div");
+    evkwText3.classList.add("resultsEVKWText");
+    evkwText3.textContent = `${fullKelly.toFixed(2)}u`;
+
+    let evkwText4 = document.createElement("div");
+    evkwText4.classList.add("resultsEVKWText");
+    evkwText4.textContent = `${halfKelly.toFixed(2)}u`;
+
+    let evkwText5 = document.createElement("div");
+    evkwText5.classList.add("resultsEVKWText");
+    evkwText5.textContent = `${quarterKelly.toFixed(2)}u`;
+
+    // Append the inner elements to finalResultsGrouping
+    finalResultsGrouping.appendChild(fvText);
+    finalResultsGrouping.appendChild(tmjText);
+    finalResultsGrouping.appendChild(evkwText1);
+    finalResultsGrouping.appendChild(evkwText2);
+    finalResultsGrouping.appendChild(evkwText3);
+    finalResultsGrouping.appendChild(evkwText4);
+    finalResultsGrouping.appendChild(evkwText5);
+
+    // Append the inner elements to resultsContainer
+    resultsContainer.appendChild(methodNameDiv);
+    resultsContainer.appendChild(grouping1);
+    resultsContainer.appendChild(finalResultsGrouping);
+
+    return resultsContainer;
+}
+
+
+const CalculateEVAndKellyFromBoost = (deviggedBoost, methodNameShort) => {
+    const methodFV = deviggedBoost[`${methodNameShort}FV`];
+    const EV = (deviggedBoost.decimalBoosted - 1) * methodFV - (1 - methodFV);
     const fullKelly = (EV / (deviggedBoost.decimalBoosted - 1)) * 100;
     const halfKelly = fullKelly / 2;
     const quarterKelly = fullKelly / 4;
     const targetKellyDollars = fullKelly / 100 * document.getElementById("kelly").value * document.getElementById("bankroll").value;
 
-    let symbol = "❌";
-    if (targetKellyDollars > 0) symbol = "✅";
+    let results = [EV, targetKellyDollars, fullKelly, halfKelly, quarterKelly];
+    console.log(results);
 
-    return `Summary; EV% = ${(EV * 100).toFixed(1)} %, Kelly Wager = $${targetKellyDollars.toFixed(2)} (Full=${fullKelly.toFixed(2)}u, 1/2=${halfKelly.toFixed(2)}, 1/4=${quarterKelly.toFixed(2)}u) ${symbol}`;
+    return results;
 }
 
 
-const DevigMethodCalcAndDisplay = (deviggedBoost, methodName, methodNameShort) => {
-    console.time(`${methodName}CalcAndDisplay`);
+const WorstCaseResultsDisplay = (deviggedBoost) => {
+    console.time("WorstCaseResultsDisplay");
 
-    const pElement = Calculate(deviggedBoost, methodName, methodNameShort);
+    let resultsContainer = document.createElement("div");
+    resultsContainer.classList.add("resultsContainer");
+
+    // Create the inner elements for resultsContainer
+    let methodNameDiv = document.createElement("div");
+    methodNameDiv.classList.add("fw-bold", "mx-2", "methodName");
+    methodNameDiv.textContent = "Worst Case";
+
+    let grouping1 = document.createElement("div");
+    grouping1.classList.add("resultsGrouping");
+
+    // for each legGrouping
+    const count = deviggedBoost.originalOdds.length;
+    let juiceSum = 0;
+    let minDeviggedList = [];
+    for (let i = 0; i < count; i++) {
+
+        let minDevigged = deviggedBoost.multiplicative[i][0];
+        let minDeviggedAmerican = deviggedBoost.multiAmerican[i][0];
+
+        if (deviggedBoost.additive[i][0] < minDevigged) {
+            minDevigged = deviggedBoost.additive[i][0];
+            minDeviggedAmerican = deviggedBoost.addiAmerican[i][0];
+        }
+
+        if (deviggedBoost.power[i][0] < minDevigged) {
+            minDevigged = deviggedBoost.power[i][0];
+            minDeviggedAmerican = deviggedBoost.powerAmerican[i][0];
+        }
+
+        if (deviggedBoost.shin[i][0] < minDevigged) {
+            minDevigged = deviggedBoost.shin[i][0];
+            minDeviggedAmerican = deviggedBoost.shinAmerican[i][0];
+        }
+
+        let fvText1 = document.createElement("div");
+        fvText1.classList.add("resultsFVText");
+        fvText1.textContent = `${(minDeviggedAmerican > 0) ? "+" : ""}${Math.round(minDeviggedAmerican)} (${(minDevigged * 100).toFixed(1)})%`;
+
+        let mjText1 = document.createElement("div");
+        mjText1.classList.add("resultsMJText");
+        const juice = ((deviggedBoost.juice[i] - 1) * 100);
+        mjText1.textContent = `${juice.toFixed(1)}%`;
+
+        // Append the inner elements to grouping1
+        grouping1.appendChild(fvText1);
+        grouping1.appendChild(mjText1);
+
+        // get the juiceSum while we're here
+        juiceSum += parseFloat(juice);
+
+        // collect minimums
+        minDeviggedList.push(minDevigged);
+    }
+
+    let finalResultsGrouping = document.createElement("div");
+    finalResultsGrouping.classList.add("finalResultsGrouping");
+
+    console.log(minDeviggedList);
+    let finalFV = minDeviggedList.reduce((acc, curr) => acc * curr, 1);
+    let finalFVAmerican = Math.round(PercentToAmerican(finalFV));
+
+    let fvText = document.createElement("div");
+    fvText.classList.add("resultsFVText");
+    fvText.textContent = `${(finalFVAmerican > 0) ? "+" : ""}${finalFVAmerican} (${(finalFV * 100).toFixed(1)}%)`;
+
+    let tmjText = document.createElement("div");
+    tmjText.classList.add("resultsTMJText");
+    tmjText.textContent = `${juiceSum.toFixed(1)}%`;
+
+    let evkwValues = CalculateEVAndKelly(deviggedBoost.decimalBoosted, finalFV);
+    let EV = evkwValues[0];
+    let targetKellyDollars = evkwValues[1];
+    let fullKelly = evkwValues[2];
+    let halfKelly = evkwValues[3];
+    let quarterKelly = evkwValues[4];
+
+    let evkwText1 = document.createElement("div");
+    evkwText1.classList.add("resultsEVKWText");
+    evkwText1.textContent = `${(EV > 0) ? "✅" : "❌"}${(EV * 100).toFixed(1)}%`;
+
+    let evkwText2 = document.createElement("div");
+    evkwText2.classList.add("resultsEVKWText");
+    evkwText2.textContent = `$${targetKellyDollars.toFixed(2)}`;
+
+    let evkwText3 = document.createElement("div");
+    evkwText3.classList.add("resultsEVKWText");
+    evkwText3.textContent = `${fullKelly.toFixed(2)}u`;
+
+    let evkwText4 = document.createElement("div");
+    evkwText4.classList.add("resultsEVKWText");
+    evkwText4.textContent = `${halfKelly.toFixed(2)}u`;
+
+    let evkwText5 = document.createElement("div");
+    evkwText5.classList.add("resultsEVKWText");
+    evkwText5.textContent = `${quarterKelly.toFixed(2)}u`;
+
+    // Append the inner elements to finalResultsGrouping
+    finalResultsGrouping.appendChild(fvText);
+    finalResultsGrouping.appendChild(tmjText);
+    finalResultsGrouping.appendChild(evkwText1);
+    finalResultsGrouping.appendChild(evkwText2);
+    finalResultsGrouping.appendChild(evkwText3);
+    finalResultsGrouping.appendChild(evkwText4);
+    finalResultsGrouping.appendChild(evkwText5);
+
+    // Append the inner elements to resultsContainer
+    resultsContainer.appendChild(methodNameDiv);
+    resultsContainer.appendChild(grouping1);
+    resultsContainer.appendChild(finalResultsGrouping);
 
     const target = document.getElementById(deviggedBoost.betId);
-    target.append(pElement);
+    target.append(resultsContainer);
 
-    console.timeEnd(`${methodName}CalcAndDisplay`);
+    console.timeEnd("WorstCaseResultsDisplay");
 }
 
+const CalculateEVAndKelly = (boostedDecimal, FV) => {
+    const EV = (boostedDecimal - 1) * FV - (1 - FV);
+    const fullKelly = (EV / (boostedDecimal - 1)) * 100;
+    const halfKelly = fullKelly / 2;
+    const quarterKelly = fullKelly / 4;
+    const targetKellyDollars = fullKelly / 100 * document.getElementById("kelly").value * document.getElementById("bankroll").value;
 
-const Calculate = (deviggedBoost, methodName, methodNameShort) => {
-    let pElement = document.createElement("p");
-    let pHtml = [];
-    pHtml.push(`<strong>${Capitlize(methodName)}:</strong><br/>`);
-    const legCount = deviggedBoost.originalOdds.length;
-    let juiceSum = 0;
-    for (let j = 0; j < legCount; j++) {
-        const juice = ((deviggedBoost.juice[j] - 1) * 100);
-        juiceSum += parseFloat(juice);
-        const american = deviggedBoost[`${methodNameShort}American`][j][0];
-        let sign = "";
-        if (american > 0) sign = "+"
-        pHtml.push(`Leg#${j + 1} (${deviggedBoost.originalOdds[j][0]}); Market Juice = ${juice.toFixed(1)} %; Fair Value = ${sign}${Math.round(american)} (${(deviggedBoost[methodName][j][0] * 100).toFixed(1)} %)<br/>`);
-    }
-    let sign = "";
-    const originalBoosted = deviggedBoost.originalBoosted;
-    if (originalBoosted > 0) sign = "+";
-    const methodFV = deviggedBoost[`${methodNameShort}FV`];
-    const methodFVAmerican = Math.round(PercentToAmerican(methodFV));
-    let sign2 = "";
-    if (methodFVAmerican > 0) sign2 = "+";
-    pHtml.push(`Final Odds (${sign}${deviggedBoost.originalBoosted}); Σ(Market Juice) = ${juiceSum.toFixed(2)} %; Fair Value = ${sign2}${methodFVAmerican} (${(methodFV * 100).toFixed(1)} %)<br/>`);
+    let results = [EV, targetKellyDollars, fullKelly, halfKelly, quarterKelly];
+    console.log(results);
 
-    //EV = (globalDeviggedBoosts[i].decimalBoosted - 1) * methodFV - (1 - methodFV)
-    const EV = (deviggedBoost.decimalBoosted - 1) * methodFV - (1 - methodFV);
-
-    pHtml.push(EVAndKellyCalcAndDisplay(deviggedBoost, EV));
-
-    pElement.innerHTML = pHtml.join("");
-
-    return pElement;
+    return results;
 }
-
 
 const ShowTestStrings = () => {
     for (let i = 0; i < globalDeviggedBoosts.length; i++) {
@@ -447,10 +727,14 @@ const ShowTestStrings = () => {
         const target2 = target.children[0];
         let targetPs = target2.querySelectorAll("span");
         targetPs.forEach(p => p.remove());
-        let span = document.createElement("span");
-        span.className = "text-body-tertiary";
-        span.innerText = boost.testString;
-        target2.append(span);
+        let div = document.createElement("div");
+        div.type = "text";
+        div.className = "text-body-tertiary testStrings";
+        div.innerText = boost.testString;
+        div.addEventListener("click", (event) => {
+            navigator.clipboard.writeText(event.target.innerText);
+        });
+        target2.append(div);
     }
 }
 
@@ -473,6 +757,7 @@ const AllCalculations = () => {
     }
     catch (error) {
         alert("Check user inputs and try again. If it keeps failing, save the file and ask admin for help.");
+        console.error(error);
     }
 
     CalculateAndDisplayEV();
@@ -481,7 +766,7 @@ const AllCalculations = () => {
 
 const fileLoaderInput = document.getElementById("fileLoaderInput");
 fileLoaderInput.addEventListener("change", () => {
-    
+
     const [file] = fileLoaderInput.files;
     const reader = new FileReader();
 
@@ -540,8 +825,31 @@ const HelpToggle = () => {
         x.style.display = "none";
     }
 }
+document.getElementById("helpLabel").addEventListener("click", () => { HelpToggle(); });
 
-document.getElementById("helpLabel").addEventListener("click", () => {HelpToggle();});
+const SaveAndLoadPreferences = () => {
+    // Retrieve stored values from localStorage (if any)
+    let storedBankroll = localStorage.getItem("bankroll");
+    let storedKelly = localStorage.getItem("kelly");
+
+    // Get the input elements
+    let bankrollInput = document.getElementById("bankroll");
+    let kellyInput = document.getElementById("kelly");
+
+    // Set the initial values or the stored values
+    bankrollInput.value = storedBankroll || bankrollInput.value;
+    kellyInput.value = storedKelly || kellyInput.value;
+
+    // Add event listeners to save the input values on change
+    bankrollInput.addEventListener("change", function () {
+        localStorage.setItem("bankroll", bankrollInput.value);
+    });
+
+    kellyInput.addEventListener("change", function () {
+        localStorage.setItem("kelly", kellyInput.value);
+    });
+}
+SaveAndLoadPreferences();
 
 //#endregion
 
@@ -549,7 +857,6 @@ document.getElementById("helpLabel").addEventListener("click", () => {HelpToggle
 //#region testing
 const TESTING = false;
 if (TESTING) {
-    // TODO change these to create
     const targetButtonHolder = document.getElementById("buttonHolderDiv");
 
     const testTextAreaButton = document.createElement("button");
@@ -1202,19 +1509,27 @@ if (TESTING) {
         assert(globalDeviggedBoosts[0].powerFV === temp[0].powerFV, "powerFV match");
         assert(globalDeviggedBoosts[0].shinFV === temp[0].shinFV, "shinFV match");
 
-        let testPElement = document.createElement("p");
-        testPElement.innerHTML = "<strong>Multiplicative:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -343 (77.4 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.3 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +105 (48.9 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +572 (14.9 %)<br>Summary; EV% = 11.6 %, Kelly Wager = $4.44 (Full=1.78u, 1/2=0.89, 1/4=0.44u) ✅";
-        let pElement = Calculate(globalDeviggedBoosts[0], "multiplicative", "multi");
-        assert(testPElement.innerHTML === pElement.innerHTML, "multi pElement match");
-        testPElement.innerHTML = "<strong>Additive:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -378 (79.1 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +103 (49.2 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +551 (15.4 %)<br>Summary; EV% = 15.1 %, Kelly Wager = $5.82 (Full=2.33u, 1/2=1.16, 1/4=0.58u) ✅";
-        pElement = Calculate(globalDeviggedBoosts[0], "additive", "addi");
-        assert(testPElement.innerHTML === pElement.innerHTML, "addi pElement match");
-        testPElement.innerHTML = "<strong>Power:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -383 (79.3 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +103 (49.2 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +550 (15.4 %)<br>Summary; EV% = 15.4 %, Kelly Wager = $5.93 (Full=2.37u, 1/2=1.19, 1/4=0.59u) ✅";
-        pElement = Calculate(globalDeviggedBoosts[0], "power", "power");
-        assert(testPElement.innerHTML === pElement.innerHTML, "power pElement match");
-        testPElement.innerHTML = "<strong>Shin:</strong><br>Leg#1 (-408); Market Juice = 3.7 %; Fair Value = -369 (78.7 %)<br>Leg#2 (149); Market Juice = 2.1 %; Fair Value = +154 (39.4 %)<br>Leg#3 (100); Market Juice = 2.3 %; Fair Value = +104 (49.1 %)<br>Final Odds (+650); Σ(Market Juice) = 8.21 %; Fair Value = +557 (15.2 %)<br>Summary; EV% = 14.2 %, Kelly Wager = $5.47 (Full=2.19u, 1/2=1.09, 1/4=0.55u) ✅";
-        pElement = Calculate(globalDeviggedBoosts[0], "shin", "shin");
-        assert(testPElement.innerHTML === pElement.innerHTML, "shin pElement match");
+        let testArray = [0.1155412047309613, 4.443892489652358, 1.777556995860943, 0.8887784979304715, 0.44438924896523574];
+        let resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "multi");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "multi resultsArray match");
+
+        testArray = [0.15137746324501256, 5.8222101248081755, 2.3288840499232704, 1.1644420249616352, 0.5822210124808176];
+        resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "addi");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "addi resultsArray match");
+
+        testArray = [0.15427030008238574, 5.933473080091758, 2.3733892320367036, 1.1866946160183518, 0.5933473080091759];
+        resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "power");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "power resultsArray match");
+
+        testArray = [0.14221042949467866, 5.4696319036414875, 2.187852761456595, 1.0939263807282975, 0.5469631903641488];
+        resultsArray = CalculateEVAndKellyFromBoost(globalDeviggedBoosts[0], "shin");
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "shin resultsArray match");
+
+        let minDeviggedList = [0.7744005214323721, 0.393158105563438, 0.48853027473993066];
+        let finalFV = minDeviggedList.reduce((acc, curr) => acc * curr, 1);
+        testArray = [0.1155412047309613, 4.443892489652358, 1.777556995860943, 0.8887784979304715, 0.44438924896523574];
+        resultsArray = CalculateEVAndKelly(globalDeviggedBoosts[0].decimalBoosted, finalFV);
+        assert(testArray[0] === resultsArray[0] && testArray[1] === resultsArray[1] && testArray[2] === resultsArray[2] && testArray[3] === resultsArray[3] && testArray[4] === resultsArray[4], "worst case resultsArray match");
 
         console.timeEnd("testCalculationsButton");
     });
