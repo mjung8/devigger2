@@ -16,11 +16,8 @@ html {
 }
 
 .userInput {
-  border: 1px solid black;
-  border-radius: 5px;
   margin: 2px;
   min-width: 49px;
-  padding: 2px 5px;
 }
 
 [contentEditable=true]:empty:not(:focus):before {
@@ -47,4 +44,38 @@ input.boostDescription {
 
 #helpLabel:hover {
   cursor: pointer;
+}
+
+div.oddsLabel {
+  width: 75px;
+}
+
+div.methodName {
+  width: 75px;
+  font-size: 0.75rem;
+}
+
+div.resultsFVHeading, div.resultsMJHeading, div.resultsEVKWHeading {
+  border-bottom: 1px solid silver;
+}
+
+div.resultsFVHeading, div.resultsFVText {
+  width: 85px;
+  font-size: 0.8rem;
+}
+
+div.resultsMJHeading, div.resultsMJText, div.resultsTMJText {
+  min-width: 40px;
+  font-size: 0.8rem;
+  margin-right: 35px;
+}
+
+div.resultsTMJText {
+  min-width: 45px;
+}
+
+div.resultsEVKWText, div.resultsEVKWHeading {
+  min-width: 45px;
+  font-size: 0.8rem;
+  margin-right: 10px;
 }/*# sourceMappingURL=styles.css.map */
