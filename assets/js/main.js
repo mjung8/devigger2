@@ -118,7 +118,7 @@ const CreateHtmlFromBoosts = (boosts, target) => {
         const boostDescInput = document.createElement("input");
         boostDescInput.setAttribute("type", "text");
         boostDescInput.className = "userInput fst-italic form-control form-control-sm boostDescription";
-        if (boost.book) {
+        if (boost.description) {
             boostDescInput.value = boost.description;
         } else {
             boostDescInput.setAttribute("placeholder", "Boost Description");
